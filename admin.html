@@ -3,10 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Alumnos Registrados</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Panel de Administración - Alumnos</title>
     <style>
-        /* Estilos específicos del panel administrativo */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -14,6 +36,17 @@
             margin-bottom: 28px;
             flex-wrap: wrap;
             gap: 16px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
         }
 
         .stats-grid {
@@ -66,7 +99,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 16px;
-            margin-bottom: 16px;
         }
 
         .filter-group {
@@ -77,8 +109,8 @@
         .filter-group label {
             font-size: 13px;
             font-weight: 500;
-            color: #374151;
             margin-bottom: 6px;
+            color: #374151;
         }
 
         .filter-group input,
@@ -87,59 +119,59 @@
             border: 1px solid #d1d5db;
             border-radius: 6px;
             font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s ease;
         }
 
-        .filter-group input:focus,
-        .filter-group select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
         }
 
-        .filter-actions {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
         }
 
         .table-container {
             overflow-x: auto;
-            border-radius: 12px;
             border: 1px solid #e5e7eb;
+            border-radius: 12px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
-        }
-
-        thead {
-            background-color: #f9fafb;
-            border-bottom: 2px solid #e5e7eb;
         }
 
         th {
+            background-color: #f9fafb;
             padding: 16px;
             text-align: left;
-            font-size: 14px;
             font-weight: 600;
-            color: #374151;
             cursor: pointer;
-            user-select: none;
-            transition: background-color 0.2s;
-        }
-
-        th:hover {
-            background-color: #f3f4f6;
+            border-bottom: 2px solid #e5e7eb;
         }
 
         td {
             padding: 14px 16px;
-            font-size: 14px;
-            color: #1f2937;
             border-bottom: 1px solid #f3f4f6;
         }
 
@@ -170,72 +202,100 @@
             color: #9b2c1d;
         }
 
-        .action-icon {
+        .delete-btn {
+            color: #ef4444;
             cursor: pointer;
             padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
-            display: inline-block;
+            border-radius: 4px;
         }
 
-        .action-icon.delete {
-            color: #ef4444;
-        }
-
-        .action-icon.delete:hover {
+        .delete-btn:hover {
             background-color: #fee2e2;
         }
 
-        .no-data {
+        .loading {
             text-align: center;
             padding: 40px;
-            color: #9ca3af;
+            color: #6b7280;
         }
 
-        @media (max-width: 768px) {
-            .card {
-                padding: 20px;
-            }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
 
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        .modal.show {
+            display: flex;
+        }
 
-            .btn {
-                flex: 1;
-                text-align: center;
-            }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+        }
 
-            th, td {
-                padding: 10px 12px;
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
             }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
+    <div class="container">
         <div class="card">
             <div class="header">
                 <div>
                     <h1>📋 Panel de Alumnos Registrados</h1>
-                    <div class="subtitle">Gestión completa de alumnos y sus comisiones</div>
+                    <div class="subtitle">Gestión completa de alumnos</div>
                 </div>
                 <div class="action-buttons">
-                    <button class="btn btn-primary" id="nuevoAlumnoBtn">
-                        ➕ Nuevo Alumno
-                    </button>
-                    <button class="btn btn-secondary" id="exportBtn">
-                        📊 Exportar a Excel
-                    </button>
-                    <button class="btn btn-danger" id="refreshBtn">
-                        🔄 Actualizar
-                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
+                    <button class="btn btn-secondary" id="exportBtn">📊 Exportar</button>
+                    <button class="btn btn-danger" id="refreshBtn">🔄 Actualizar</button>
                 </div>
             </div>
 
-            <!-- Estadísticas -->
-            <div class="stats-grid" id="statsGrid">
+            <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="totalAlumnos">0</div>
                     <div class="stat-label">Total Alumnos</div>
@@ -254,7 +314,6 @@
                 </div>
             </div>
 
-            <!-- Filtros -->
             <div class="filters-section">
                 <div class="filters-grid">
                     <div class="filter-group">
@@ -264,69 +323,247 @@
                     <div class="filter-group">
                         <label>📌 Filtrar por comisión</label>
                         <select id="comisionFilter">
-                            <option value="">Todas las comisiones</option>
+                            <option value="">Todas</option>
                             <option value="Comisión A">Comisión A</option>
                             <option value="Comisión B">Comisión B</option>
                             <option value="Comisión C">Comisión C</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>📅 Buscar por DNI</label>
-                        <input type="text" id="dniFilter" placeholder="DNI del alumno">
+                        <label>🔢 Buscar por DNI</label>
+                        <input type="text" id="dniFilter" placeholder="DNI">
                     </div>
-                    <div class="filter-actions">
-                        <button class="btn btn-primary" id="applyFiltersBtn" style="padding: 8px 16px;">
-                            Aplicar Filtros
-                        </button>
-                        <button class="btn" id="clearFiltersBtn" style="background-color: #e5e7eb; padding: 8px 16px;">
-                            Limpiar
-                        </button>
-                    </div>
+                </div>
+                <div style="margin-top: 16px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="applyFiltersBtn">Aplicar Filtros</button>
+                    <button class="btn" id="clearFiltersBtn" style="background: #e5e7eb;">Limpiar</button>
                 </div>
             </div>
 
-            <!-- Tabla de alumnos -->
             <div class="table-container">
                 <div id="loadingState" class="loading">
-                    <div class="spinner"></div>
-                    Cargando alumnos...
+                    <div>Cargando alumnos...</div>
                 </div>
                 <div id="tableContent" style="display: none;">
-                    <table id="alumnosTable">
+                    <table>
                         <thead>
                             <tr>
-                                <th data-sort="nombre">Nombre ⬍</th>
-                                <th data-sort="apellido">Apellido ⬍</th>
-                                <th data-sort="dni">DNI ⬍</th>
-                                <th data-sort="comision">Comisión ⬍</th>
-                                <th data-sort="fecha_registro">Fecha Registro ⬍</th>
+                                <th onclick="sortTable('nombre')">Nombre ⬍</th>
+                                <th onclick="sortTable('apellido')">Apellido ⬍</th>
+                                <th onclick="sortTable('dni')">DNI ⬍</th>
+                                <th onclick="sortTable('comision')">Comisión ⬍</th>
+                                <th onclick="sortTable('fecha_registro')">Fecha Registro ⬍</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody">
-                            <!-- Los datos se cargarán aquí dinámicamente -->
-                        </tbody>
+                        <tbody id="tableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de confirmación para eliminar -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <h3>⚠️ Confirmar eliminación</h3>
-            <p id="deleteMessage">¿Está seguro que desea eliminar este alumno?</p>
+            <p id="deleteMessage">¿Está seguro?</p>
             <div class="modal-buttons">
                 <button class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
-                <button class="btn" id="cancelDeleteBtn" style="background-color: #e5e7eb;">Cancelar</button>
+                <button class="btn" id="cancelDeleteBtn">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- JavaScript del panel administrativo -->
-    <script src="admin.js"></script>
+    <script>
+        // TUS CREDENCIALES
+        const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let allAlumnos = [];
+        let filteredAlumnos = [];
+        let currentSort = { column: 'fecha_registro', direction: 'desc' };
+        let alumnoToDelete = null;
+        
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('es-AR');
+        }
+        
+        function getBadge(comision) {
+            const classes = {
+                'Comisión A': 'badge-a',
+                'Comisión B': 'badge-b',
+                'Comisión C': 'badge-c'
+            };
+            return `<span class="badge ${classes[comision]}">${comision}</span>`;
+        }
+        
+        function updateStats() {
+            document.getElementById('totalAlumnos').textContent = allAlumnos.length;
+            document.getElementById('totalComisionA').textContent = allAlumnos.filter(a => a.comision === 'Comisión A').length;
+            document.getElementById('totalComisionB').textContent = allAlumnos.filter(a => a.comision === 'Comisión B').length;
+            document.getElementById('totalComisionC').textContent = allAlumnos.filter(a => a.comision === 'Comisión C').length;
+        }
+        
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (filteredAlumnos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">No hay alumnos registrados</td></tr>';
+                return;
+            }
+            
+            const sorted = [...filteredAlumnos].sort((a, b) => {
+                let valA = a[currentSort.column];
+                let valB = b[currentSort.column];
+                if (currentSort.column === 'fecha_registro') {
+                    valA = new Date(valA);
+                    valB = new Date(valB);
+                } else if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+                if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            tbody.innerHTML = sorted.map(alumno => `
+                <tr>
+                    <td><strong>${alumno.nombre}</strong></td>
+                    <td>${alumno.apellido}</td>
+                    <td>${alumno.dni}</td>
+                    <td>${getBadge(alumno.comision)}</td>
+                    <td>${formatDate(alumno.fecha_registro)}</td>
+                    <td><span class="delete-btn" onclick="deleteAlumno('${alumno.id}', '${alumno.nombre} ${alumno.apellido}')">🗑️ Eliminar</span></td>
+                </tr>
+            `).join('');
+        }
+        
+        window.sortTable = (column) => {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            renderTable();
+        };
+        
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const comisionValue = document.getElementById('comisionFilter').value;
+            const dniValue = document.getElementById('dniFilter').value;
+            
+            filteredAlumnos = allAlumnos.filter(alumno => {
+                if (searchTerm) {
+                    const fullName = `${alumno.nombre} ${alumno.apellido}`.toLowerCase();
+                    if (!fullName.includes(searchTerm)) return false;
+                }
+                if (comisionValue && alumno.comision !== comisionValue) return false;
+                if (dniValue && !alumno.dni.includes(dniValue)) return false;
+                return true;
+            });
+            renderTable();
+            showToast(`Mostrando ${filteredAlumnos.length} de ${allAlumnos.length} alumnos`);
+        }
+        
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('comisionFilter').value = '';
+            document.getElementById('dniFilter').value = '';
+            filteredAlumnos = [...allAlumnos];
+            renderTable();
+            showToast('Filtros limpiados');
+        }
+        
+        window.deleteAlumno = (id, nombre) => {
+            alumnoToDelete = id;
+            document.getElementById('deleteMessage').textContent = `¿Eliminar a ${nombre}?`;
+            document.getElementById('deleteModal').classList.add('show');
+        };
+        
+        async function confirmDelete() {
+            if (!alumnoToDelete) return;
+            const { error } = await supabase.from('alumnos').delete().eq('id', alumnoToDelete);
+            if (error) {
+                showToast('Error al eliminar', true);
+            } else {
+                showToast('Alumno eliminado');
+                await loadAlumnos();
+            }
+            closeModal();
+        }
+        
+        function closeModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            alumnoToDelete = null;
+        }
+        
+        async function loadAlumnos() {
+            const loadingState = document.getElementById('loadingState');
+            const tableContent = document.getElementById('tableContent');
+            
+            loadingState.style.display = 'block';
+            tableContent.style.display = 'none';
+            
+            const { data, error } = await supabase.from('alumnos').select('*').order('fecha_registro', { ascending: false });
+            
+            if (error) {
+                showToast('Error al cargar datos: ' + error.message, true);
+                loadingState.innerHTML = '<div>Error al cargar datos</div>';
+                return;
+            }
+            
+            allAlumnos = data || [];
+            filteredAlumnos = [...allAlumnos];
+            updateStats();
+            renderTable();
+            
+            loadingState.style.display = 'none';
+            tableContent.style.display = 'block';
+        }
+        
+        function exportToExcel() {
+            if (filteredAlumnos.length === 0) {
+                showToast('No hay datos para exportar', true);
+                return;
+            }
+            
+            const headers = ['Nombre', 'Apellido', 'DNI', 'Comisión', 'Fecha Registro'];
+            const rows = filteredAlumnos.map(a => [a.nombre, a.apellido, a.dni, a.comision, formatDate(a.fecha_registro)]);
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `alumnos_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast('Exportado correctamente');
+        }
+        
+        document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+        document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+        document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
+        document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+        document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+        document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
+        
+        loadAlumnos();
+        console.log('Panel listo');
+    </script>
 </body>
 </html>
