@@ -3,14 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Distribución de Alumnos en Comisiones</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Formulario de Distribución de Alumnos</title>
     <style>
-        /* Estilos específicos del formulario */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .comision-desc {
+            font-size: 12px;
+            color: #6b7280;
+            margin-left: 28px;
+            margin-top: 2px;
+        }
+
+        .btn-submit {
+            background-color: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 24px;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        input.error {
+            border-color: #ef4444;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -24,20 +187,20 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nombre">Nombre <span class="required">*</span></label>
-                        <input type="text" id="nombre" name="nombre" placeholder="Ingrese el nombre" autocomplete="off">
+                        <input type="text" id="nombre" name="nombre" placeholder="Ingrese el nombre">
                         <div class="error-message" id="error-nombre">El nombre es obligatorio</div>
                     </div>
                     
                     <div class="form-group">
                         <label for="apellido">Apellido <span class="required">*</span></label>
-                        <input type="text" id="apellido" name="apellido" placeholder="Ingrese el apellido" autocomplete="off">
+                        <input type="text" id="apellido" name="apellido" placeholder="Ingrese el apellido">
                         <div class="error-message" id="error-apellido">El apellido es obligatorio</div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="dni">DNI <span class="required">*</span></label>
-                    <input type="number" id="dni" name="dni" placeholder="Ingrese el DNI sin puntos" autocomplete="off">
+                    <input type="number" id="dni" name="dni" placeholder="Ingrese el DNI sin puntos">
                     <div class="error-message" id="error-dni">El DNI es obligatorio</div>
                 </div>
                 
@@ -70,9 +233,142 @@
         </div>
     </div>
 
-    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- JavaScript del formulario -->
-    <script src="form.js"></script>
+    <script>
+        // TUS CREDENCIALES
+        const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const form = document.getElementById('alumnoForm');
+        const nombreInput = document.getElementById('nombre');
+        const apellidoInput = document.getElementById('apellido');
+        const dniInput = document.getElementById('dni');
+        const radioButtons = document.querySelectorAll('input[name="comision"]');
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function showError(inputId, errorId, message) {
+            document.getElementById(inputId).classList.add('error');
+            const errorDiv = document.getElementById(errorId);
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+        
+        function hideError(inputId, errorId) {
+            document.getElementById(inputId).classList.remove('error');
+            document.getElementById(errorId).classList.remove('show');
+        }
+        
+        function validateNombre() {
+            if (!nombreInput.value.trim()) {
+                showError('nombre', 'error-nombre', 'El nombre es obligatorio');
+                return false;
+            }
+            hideError('nombre', 'error-nombre');
+            return true;
+        }
+        
+        function validateApellido() {
+            if (!apellidoInput.value.trim()) {
+                showError('apellido', 'error-apellido', 'El apellido es obligatorio');
+                return false;
+            }
+            hideError('apellido', 'error-apellido');
+            return true;
+        }
+        
+        function validateDNI() {
+            const dni = dniInput.value.trim();
+            if (!dni) {
+                showError('dni', 'error-dni', 'El DNI es obligatorio');
+                return false;
+            }
+            if (!/^\d{7,8}$/.test(dni)) {
+                showError('dni', 'error-dni', 'El DNI debe tener 7 u 8 dígitos');
+                return false;
+            }
+            hideError('dni', 'error-dni');
+            return true;
+        }
+        
+        function validateComision() {
+            let selected = false;
+            radioButtons.forEach(radio => {
+                if (radio.checked) selected = true;
+            });
+            if (!selected) {
+                document.getElementById('error-comision').classList.add('show');
+                return false;
+            }
+            document.getElementById('error-comision').classList.remove('show');
+            return true;
+        }
+        
+        function getSelectedComision() {
+            let selected = '';
+            radioButtons.forEach(radio => {
+                if (radio.checked) selected = radio.value;
+            });
+            return selected;
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const isValid = validateNombre() && validateApellido() && validateDNI() && validateComision();
+            if (!isValid) return;
+            
+            const alumnoData = {
+                nombre: nombreInput.value.trim(),
+                apellido: apellidoInput.value.trim(),
+                dni: dniInput.value.trim(),
+                comision: getSelectedComision()
+            };
+            
+            const submitBtn = document.querySelector('.btn-submit');
+            submitBtn.textContent = 'Guardando...';
+            submitBtn.disabled = true;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('alumnos')
+                    .insert([alumnoData]);
+                
+                if (error) {
+                    if (error.code === '23505') {
+                        showError('dni', 'error-dni', 'Este DNI ya está registrado');
+                        showToast('DNI duplicado');
+                    } else {
+                        showToast('Error al guardar: ' + error.message);
+                    }
+                } else {
+                    showToast('¡Alumno registrado correctamente!');
+                    form.reset();
+                    ['nombre', 'apellido', 'dni'].forEach(id => hideError(id, `error-${id}`));
+                    document.getElementById('error-comision').classList.remove('show');
+                }
+            } catch (error) {
+                showToast('Error de conexión: ' + error.message);
+            } finally {
+                submitBtn.textContent = 'Registrar Alumno';
+                submitBtn.disabled = false;
+            }
+        });
+        
+        nombreInput.addEventListener('input', validateNombre);
+        apellidoInput.addEventListener('input', validateApellido);
+        dniInput.addEventListener('input', validateDNI);
+        radioButtons.forEach(radio => radio.addEventListener('change', validateComision));
+        
+        console.log('Formulario listo');
+    </script>
 </body>
 </html>
