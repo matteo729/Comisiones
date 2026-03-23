@@ -170,6 +170,10 @@
             border-bottom: 2px solid #e5e7eb;
         }
 
+        th:hover {
+            background-color: #e5e7eb;
+        }
+
         td {
             padding: 14px 16px;
             border-bottom: 1px solid #f3f4f6;
@@ -207,6 +211,7 @@
             cursor: pointer;
             padding: 4px 8px;
             border-radius: 4px;
+            display: inline-block;
         }
 
         .delete-btn:hover {
@@ -261,6 +266,10 @@
             border-radius: 8px;
             animation: slideIn 0.3s ease;
             z-index: 1000;
+        }
+
+        .toast.error {
+            background-color: #ef4444;
         }
 
         @keyframes slideIn {
@@ -345,7 +354,7 @@
                     <div>Cargando alumnos...</div>
                 </div>
                 <div id="tableContent" style="display: none;">
-                    <table>
+                    <table id="alumnosTable">
                         <thead>
                             <tr>
                                 <th onclick="sortTable('nombre')">Nombre ⬍</th>
@@ -376,194 +385,242 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // TUS CREDENCIALES
-        const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        let allAlumnos = [];
-        let filteredAlumnos = [];
-        let currentSort = { column: 'fecha_registro', direction: 'desc' };
-        let alumnoToDelete = null;
-        
-        function showToast(message, isError = false) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-        
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            return date.toLocaleString('es-AR');
-        }
-        
-        function getBadge(comision) {
-            const classes = {
-                'Comisión A': 'badge-a',
-                'Comisión B': 'badge-b',
-                'Comisión C': 'badge-c'
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // TUS CREDENCIALES
+            const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
+            
+            // Verificar que supabase esté disponible
+            if (typeof supabase === 'undefined') {
+                console.error('Supabase no se cargó correctamente');
+                alert('Error: No se pudo cargar Supabase. Verifica tu conexión a internet.');
+                return;
+            }
+            
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase inicializado correctamente');
+            
+            let allAlumnos = [];
+            let filteredAlumnos = [];
+            let currentSort = { column: 'fecha_registro', direction: 'desc' };
+            let alumnoToDelete = null;
+            
+            function showToast(message, isError = false) {
+                const toast = document.createElement('div');
+                toast.className = 'toast' + (isError ? ' error' : '');
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+            
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                const date = new Date(dateString);
+                return date.toLocaleString('es-AR');
+            }
+            
+            function getBadge(comision) {
+                const classes = {
+                    'Comisión A': 'badge-a',
+                    'Comisión B': 'badge-b',
+                    'Comisión C': 'badge-c'
+                };
+                return `<span class="badge ${classes[comision]}">${comision}</span>`;
+            }
+            
+            function updateStats() {
+                document.getElementById('totalAlumnos').textContent = allAlumnos.length;
+                document.getElementById('totalComisionA').textContent = allAlumnos.filter(a => a.comision === 'Comisión A').length;
+                document.getElementById('totalComisionB').textContent = allAlumnos.filter(a => a.comision === 'Comisión B').length;
+                document.getElementById('totalComisionC').textContent = allAlumnos.filter(a => a.comision === 'Comisión C').length;
+            }
+            
+            function renderTable() {
+                const tbody = document.getElementById('tableBody');
+                
+                if (filteredAlumnos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">📭 No hay alumnos registrados</td></tr>';
+                    return;
+                }
+                
+                const sorted = [...filteredAlumnos].sort((a, b) => {
+                    let valA = a[currentSort.column];
+                    let valB = b[currentSort.column];
+                    if (currentSort.column === 'fecha_registro') {
+                        valA = new Date(valA);
+                        valB = new Date(valB);
+                    } else if (typeof valA === 'string') {
+                        valA = valA.toLowerCase();
+                        valB = valB.toLowerCase();
+                    }
+                    if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+                
+                tbody.innerHTML = sorted.map(alumno => `
+                    <tr>
+                        <td><strong>${escapeHtml(alumno.nombre)}</strong></td>
+                        <td>${escapeHtml(alumno.apellido)}</td>
+                        <td>${escapeHtml(alumno.dni)}</td>
+                        <td>${getBadge(alumno.comision)}</td>
+                        <td>${formatDate(alumno.fecha_registro)}</td>
+                        <td><span class="delete-btn" onclick="window.deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️ Eliminar</span></td>
+                    </tr>
+                `).join('');
+            }
+            
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            window.sortTable = function(column) {
+                if (currentSort.column === column) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.column = column;
+                    currentSort.direction = 'asc';
+                }
+                renderTable();
             };
-            return `<span class="badge ${classes[comision]}">${comision}</span>`;
-        }
-        
-        function updateStats() {
-            document.getElementById('totalAlumnos').textContent = allAlumnos.length;
-            document.getElementById('totalComisionA').textContent = allAlumnos.filter(a => a.comision === 'Comisión A').length;
-            document.getElementById('totalComisionB').textContent = allAlumnos.filter(a => a.comision === 'Comisión B').length;
-            document.getElementById('totalComisionC').textContent = allAlumnos.filter(a => a.comision === 'Comisión C').length;
-        }
-        
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
             
-            if (filteredAlumnos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">No hay alumnos registrados</td></tr>';
-                return;
+            function applyFilters() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const comisionValue = document.getElementById('comisionFilter').value;
+                const dniValue = document.getElementById('dniFilter').value;
+                
+                filteredAlumnos = allAlumnos.filter(alumno => {
+                    if (searchTerm) {
+                        const fullName = `${alumno.nombre} ${alumno.apellido}`.toLowerCase();
+                        if (!fullName.includes(searchTerm)) return false;
+                    }
+                    if (comisionValue && alumno.comision !== comisionValue) return false;
+                    if (dniValue && !alumno.dni.includes(dniValue)) return false;
+                    return true;
+                });
+                renderTable();
+                showToast(`Mostrando ${filteredAlumnos.length} de ${allAlumnos.length} alumnos`);
             }
             
-            const sorted = [...filteredAlumnos].sort((a, b) => {
-                let valA = a[currentSort.column];
-                let valB = b[currentSort.column];
-                if (currentSort.column === 'fecha_registro') {
-                    valA = new Date(valA);
-                    valB = new Date(valB);
-                } else if (typeof valA === 'string') {
-                    valA = valA.toLowerCase();
-                    valB = valB.toLowerCase();
+            function clearFilters() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('comisionFilter').value = '';
+                document.getElementById('dniFilter').value = '';
+                filteredAlumnos = [...allAlumnos];
+                renderTable();
+                showToast('Filtros limpiados');
+            }
+            
+            window.deleteAlumno = function(id, nombre) {
+                alumnoToDelete = id;
+                document.getElementById('deleteMessage').textContent = `¿Eliminar a ${nombre}?`;
+                document.getElementById('deleteModal').classList.add('show');
+            };
+            
+            async function confirmDelete() {
+                if (!alumnoToDelete) return;
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('alumnos')
+                        .delete()
+                        .eq('id', alumnoToDelete);
+                    
+                    if (error) {
+                        showToast('Error al eliminar: ' + error.message, true);
+                    } else {
+                        showToast('Alumno eliminado correctamente');
+                        await loadAlumnos();
+                    }
+                } catch (error) {
+                    showToast('Error: ' + error.message, true);
                 }
-                if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
-                if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
-                return 0;
-            });
-            
-            tbody.innerHTML = sorted.map(alumno => `
-                <tr>
-                    <td><strong>${alumno.nombre}</strong></td>
-                    <td>${alumno.apellido}</td>
-                    <td>${alumno.dni}</td>
-                    <td>${getBadge(alumno.comision)}</td>
-                    <td>${formatDate(alumno.fecha_registro)}</td>
-                    <td><span class="delete-btn" onclick="deleteAlumno('${alumno.id}', '${alumno.nombre} ${alumno.apellido}')">🗑️ Eliminar</span></td>
-                </tr>
-            `).join('');
-        }
-        
-        window.sortTable = (column) => {
-            if (currentSort.column === column) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 'asc';
+                closeModal();
             }
-            renderTable();
-        };
-        
-        function applyFilters() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const comisionValue = document.getElementById('comisionFilter').value;
-            const dniValue = document.getElementById('dniFilter').value;
             
-            filteredAlumnos = allAlumnos.filter(alumno => {
-                if (searchTerm) {
-                    const fullName = `${alumno.nombre} ${alumno.apellido}`.toLowerCase();
-                    if (!fullName.includes(searchTerm)) return false;
+            function closeModal() {
+                document.getElementById('deleteModal').classList.remove('show');
+                alumnoToDelete = null;
+            }
+            
+            async function loadAlumnos() {
+                const loadingState = document.getElementById('loadingState');
+                const tableContent = document.getElementById('tableContent');
+                
+                loadingState.style.display = 'block';
+                tableContent.style.display = 'none';
+                
+                try {
+                    console.log('Cargando alumnos...');
+                    const { data, error } = await supabaseClient
+                        .from('alumnos')
+                        .select('*')
+                        .order('fecha_registro', { ascending: false });
+                    
+                    if (error) {
+                        console.error('Error de Supabase:', error);
+                        if (error.code === '42P01') {
+                            loadingState.innerHTML = '<div>❌ Error: La tabla "alumnos" no existe. Ejecuta el script SQL primero.</div>';
+                        } else {
+                            loadingState.innerHTML = '<div>❌ Error al cargar datos: ' + error.message + '</div>';
+                        }
+                        showToast('Error al cargar datos: ' + error.message, true);
+                        return;
+                    }
+                    
+                    console.log('Datos cargados:', data);
+                    allAlumnos = data || [];
+                    filteredAlumnos = [...allAlumnos];
+                    updateStats();
+                    renderTable();
+                    
+                    loadingState.style.display = 'none';
+                    tableContent.style.display = 'block';
+                    
+                    if (allAlumnos.length === 0) {
+                        showToast('No hay alumnos registrados aún');
+                    } else {
+                        showToast(`${allAlumnos.length} alumnos cargados`);
+                    }
+                } catch (error) {
+                    console.error('Error de conexión:', error);
+                    loadingState.innerHTML = '<div>❌ Error de conexión. Verifica tu internet.</div>';
+                    showToast('Error de conexión: ' + error.message, true);
                 }
-                if (comisionValue && alumno.comision !== comisionValue) return false;
-                if (dniValue && !alumno.dni.includes(dniValue)) return false;
-                return true;
-            });
-            renderTable();
-            showToast(`Mostrando ${filteredAlumnos.length} de ${allAlumnos.length} alumnos`);
-        }
-        
-        function clearFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('comisionFilter').value = '';
-            document.getElementById('dniFilter').value = '';
-            filteredAlumnos = [...allAlumnos];
-            renderTable();
-            showToast('Filtros limpiados');
-        }
-        
-        window.deleteAlumno = (id, nombre) => {
-            alumnoToDelete = id;
-            document.getElementById('deleteMessage').textContent = `¿Eliminar a ${nombre}?`;
-            document.getElementById('deleteModal').classList.add('show');
-        };
-        
-        async function confirmDelete() {
-            if (!alumnoToDelete) return;
-            const { error } = await supabase.from('alumnos').delete().eq('id', alumnoToDelete);
-            if (error) {
-                showToast('Error al eliminar', true);
-            } else {
-                showToast('Alumno eliminado');
-                await loadAlumnos();
-            }
-            closeModal();
-        }
-        
-        function closeModal() {
-            document.getElementById('deleteModal').classList.remove('show');
-            alumnoToDelete = null;
-        }
-        
-        async function loadAlumnos() {
-            const loadingState = document.getElementById('loadingState');
-            const tableContent = document.getElementById('tableContent');
-            
-            loadingState.style.display = 'block';
-            tableContent.style.display = 'none';
-            
-            const { data, error } = await supabase.from('alumnos').select('*').order('fecha_registro', { ascending: false });
-            
-            if (error) {
-                showToast('Error al cargar datos: ' + error.message, true);
-                loadingState.innerHTML = '<div>Error al cargar datos</div>';
-                return;
             }
             
-            allAlumnos = data || [];
-            filteredAlumnos = [...allAlumnos];
-            updateStats();
-            renderTable();
-            
-            loadingState.style.display = 'none';
-            tableContent.style.display = 'block';
-        }
-        
-        function exportToExcel() {
-            if (filteredAlumnos.length === 0) {
-                showToast('No hay datos para exportar', true);
-                return;
+            function exportToExcel() {
+                if (filteredAlumnos.length === 0) {
+                    showToast('No hay datos para exportar', true);
+                    return;
+                }
+                
+                const headers = ['Nombre', 'Apellido', 'DNI', 'Comisión', 'Fecha Registro'];
+                const rows = filteredAlumnos.map(a => [a.nombre, a.apellido, a.dni, a.comision, formatDate(a.fecha_registro)]);
+                const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+                const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `alumnos_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                showToast('Exportado correctamente');
             }
             
-            const headers = ['Nombre', 'Apellido', 'DNI', 'Comisión', 'Fecha Registro'];
-            const rows = filteredAlumnos.map(a => [a.nombre, a.apellido, a.dni, a.comision, formatDate(a.fecha_registro)]);
-            const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `alumnos_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-            URL.revokeObjectURL(link.href);
-            showToast('Exportado correctamente');
-        }
-        
-        document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
-        document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
-        document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
-        document.getElementById('exportBtn').addEventListener('click', exportToExcel);
-        document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
-        document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
-        
-        loadAlumnos();
-        console.log('Panel listo');
+            // Event listeners
+            document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+            document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+            document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
+            document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+            document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+            document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
+            
+            // Cargar datos iniciales
+            loadAlumnos();
+        });
     </script>
 </body>
 </html>
