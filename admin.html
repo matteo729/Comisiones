@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Alumnos Registrados</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Tarjeta principal */
+        .card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 32px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Filtros y búsqueda */
+        .filters-section {
+            background-color: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        /* Estadísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Tabla */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        thead {
+            background-color: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        th:hover {
+            background-color: #f3f4f6;
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #1f2937;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Badges de comisión */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-a {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-b {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-c {
+            background-color: #fed7aa;
+            color: #9b2c1d;
+        }
+
+        /* Botones de acción en tabla */
+        .action-icon {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .action-icon.delete {
+            color: #ef4444;
+        }
+
+        .action-icon.delete:hover {
+            background-color: #fee2e2;
+        }
+
+        /* Modal de confirmación */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 12px;
+            color: #1f2937;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #6b7280;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        /* Mensaje de éxito */
+        .toast-success {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading spinner */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Sin datos */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card {
+                padding: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-buttons {
+                justify-content: stretch;
+            }
+
+            .btn {
+                flex: 1;
+                text-align: center;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div>
+                    <h1>📋 Panel de Alumnos Registrados</h1>
+                    <div class="subtitle">Gestión completa de alumnos y sus comisiones</div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='formulario-alumnos.html'">
+                        ➕ Nuevo Alumno
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportToExcel()">
+                        📊 Exportar a Excel
+                    </button>
+                    <button class="btn btn-danger" onclick="refreshData()">
+                        🔄 Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAlumnos">0</div>
+                    <div class="stat-label">Total Alumnos</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-number" id="totalComisionA">0</div>
+                    <div class="stat-label">Comisión A</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-number" id="totalComisionB">0</div>
+                    <div class="stat-label">Comisión B</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-number" id="totalComisionC">0</div>
+                    <div class="stat-label">Comisión C</div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-section">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>🔍 Buscar por nombre o apellido</label>
+                        <input type="text" id="searchInput" placeholder="Escriba para buscar...">
+                    </div>
+                    <div class="filter-group">
+                        <label>📌 Filtrar por comisión</label>
+                        <select id="comisionFilter">
+                            <option value="">Todas las comisiones</option>
+                            <option value="Comisión A">Comisión A</option>
+                            <option value="Comisión B">Comisión B</option>
+                            <option value="Comisión C">Comisión C</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>📅 Buscar por DNI</label>
+                        <input type="text" id="dniFilter" placeholder="DNI del alumno">
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-primary" onclick="applyFilters()" style="padding: 8px 16px;">
+                            Aplicar Filtros
+                        </button>
+                        <button class="btn" onclick="clearFilters()" style="background-color: #e5e7eb; padding: 8px 16px;">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de alumnos -->
+            <div class="table-container">
+                <div id="loadingState" class="loading">
+                    <div class="spinner"></div>
+                    Cargando alumnos...
+                </div>
+                <div id="tableContent" style="display: none;">
+                    <table id="alumnosTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortBy('nombre')">Nombre ⬍</th>
+                                <th onclick="sortBy('apellido')">Apellido ⬍</th>
+                                <th onclick="sortBy('dni')">DNI ⬍</th>
+                                <th onclick="sortBy('comision')">Comisión ⬍</th>
+                                <th onclick="sortBy('fecha_registro')">Fecha Registro ⬍</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Los datos se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Confirmar eliminación</h3>
+            <p id="deleteMessage">¿Está seguro que desea eliminar este alumno?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="confirmDelete()">Eliminar</button>
+                <button class="btn" onclick="closeModal()" style="background-color: #e5e7eb;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE SUPABASE
+        // Usar las mismas credenciales que en el formulario
+        // ============================================
+        const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
+        
+        // Inicializar cliente de Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Variables globales
+        let allAlumnos = [];
+        let filteredAlumnos = [];
+        let currentSort = { column: 'fecha_registro', direction: 'desc' };
+        let alumnoToDelete = null;
+        
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAlumnos();
+        });
+        
+        // Función para cargar alumnos desde Supabase
+        async function loadAlumnos() {
+            try {
+                showLoading(true);
+                
+                const { data, error } = await supabase
+                    .from('alumnos')
+                    .select('*')
+                    .order('fecha_registro', { ascending: false });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                allAlumnos = data || [];
+                filteredAlumnos = [...allAlumnos];
+                
+                updateStats();
+                renderTable();
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error al cargar alumnos:', error);
+                showLoading(false);
+                showToast('Error al cargar los datos. Verifique su conexión.', 'error');
+            }
+        }
+        
+        // Mostrar/ocultar loading
+        function showLoading(show) {
+            const loadingState = document.getElementById('loadingState');
+            const tableContent = document.getElementById('tableContent');
+            
+            if (show) {
+                loadingState.style.display = 'block';
+                tableContent.style.display = 'none';
+            } else {
+                loadingState.style.display = 'none';
+                tableContent.style.display = 'block';
+            }
+        }
+        
+        // Actualizar estadísticas
+        function updateStats() {
+            const total = allAlumnos.length;
+            const comisionA = allAlumnos.filter(a => a.comision === 'Comisión A').length;
+            const comisionB = allAlumnos.filter(a => a.comision === 'Comisión B').length;
+            const comisionC = allAlumnos.filter(a => a.comision === 'Comisión C').length;
+            
+            document.getElementById('totalAlumnos').textContent = total;
+            document.getElementById('totalComisionA').textContent = comisionA;
+            document.getElementById('totalComisionB').textContent = comisionB;
+            document.getElementById('totalComisionC').textContent = comisionC;
+        }
+        
+        // Renderizar tabla con filtros y ordenamiento
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (filteredAlumnos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="no-data">
+                            📭 No hay alumnos registrados
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Aplicar ordenamiento
+            const sorted = [...filteredAlumnos].sort((a, b) => {
+                let valA = a[currentSort.column];
+                let valB = b[currentSort.column];
+                
+                if (currentSort.column === 'fecha_registro') {
+                    valA = new Date(valA);
+                    valB = new Date(valB);
+                } else if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+                
+                if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            tbody.innerHTML = sorted.map(alumno => `
+                <tr>
+                    <td><strong>${escapeHtml(alumno.nombre)}</strong></td>
+                    <td>${escapeHtml(alumno.apellido)}</td>
+                    <td>${escapeHtml(alumno.dni)}</td>
+                    <td>${getComisionBadge(alumno.comision)}</td>
+                    <td>${formatDate(alumno.fecha_registro)}</td>
+                    <td>
+                        <span class="action-icon delete" onclick="deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">
+                            🗑️ Eliminar
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Obtener badge de comisión
+        function getComisionBadge(comision) {
+            let badgeClass = '';
+            if (comision === 'Comisión A') badgeClass = 'badge-a';
+            else if (comision === 'Comisión B') badgeClass = 'badge-b';
+            else badgeClass = 'badge-c';
+            
+            return `<span class="badge ${badgeClass}">${comision}</span>`;
+        }
+        
+        // Formatear fecha
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Escapar HTML para prevenir XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Aplicar filtros
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const comisionFilter = document.getElementById('comisionFilter').value;
+            const dniFilter = document.getElementById('dniFilter').value;
+            
+            filteredAlumnos = allAlumnos.filter(alumno => {
+                // Filtro por nombre/apellido
+                if (searchTerm) {
+                    const fullName = `${alumno.nombre} ${alumno.apellido}`.toLowerCase();
+                    if (!fullName.includes(searchTerm) && !alumno.nombre.toLowerCase().includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                // Filtro por comisión
+                if (comisionFilter && alumno.comision !== comisionFilter) {
+                    return false;
+                }
+                
+                // Filtro por DNI
+                if (dniFilter && !alumno.dni.includes(dniFilter)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            renderTable();
+            showToast(`Mostrando ${filteredAlumnos.length} de ${allAlumnos.length} alumnos`, 'info');
+        }
+        
+        // Limpiar filtros
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('comisionFilter').value = '';
+            document.getElementById('dniFilter').value = '';
+            filteredAlumnos = [...allAlumnos];
+            renderTable();
+            showToast('Filtros limpiados', 'info');
+        }
+        
+        // Ordenar tabla
+        function sortBy(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            renderTable();
+        }
+        
+        // Eliminar alumno (mostrar modal)
+        function deleteAlumno(id, nombre) {
+            alumnoToDelete = id;
+            const message = document.getElementById('deleteMessage');
+            message.textContent = `¿Está seguro que desea eliminar a ${nombre}?`;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+        
+        // Confirmar eliminación
+        async function confirmDelete() {
+            if (!alumnoToDelete) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('alumnos')
+                    .delete()
+                    .eq('id', alumnoToDelete);
+                
+                if (error) throw error;
+                
+                showToast('Alumno eliminado correctamente', 'success');
+                closeModal();
+                await loadAlumnos(); // Recargar datos
+                
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                showToast('Error al eliminar el alumno', 'error');
+            }
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            alumnoToDelete = null;
+        }
+        
+        // Actualizar datos
+        async function refreshData() {
+            await loadAlumnos();
+            showToast('Datos actualizados correctamente', 'success');
+        }
+        
+        // Exportar a Excel (CSV)
+        function exportToExcel() {
+            if (filteredAlumnos.length === 0) {
+                showToast('No hay datos para exportar', 'warning');
+                return;
+            }
+            
+            // Preparar datos para CSV
+            const headers = ['Nombre', 'Apellido', 'DNI', 'Comisión', 'Fecha Registro'];
+            const rows = filteredAlumnos.map(alumno => [
+                alumno.nombre,
+                alumno.apellido,
+                alumno.dni,
+                alumno.comision,
+                formatDate(alumno.fecha_registro)
+            ]);
+            
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(cell => `"${cell}"`).join(','))
+                .join('\n');
+            
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `alumnos_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showToast('Exportación completada', 'success');
+        }
+        
+        // Mostrar mensaje temporal
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'toast-success';
+            toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#22c55e';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // Funciones globales para los onclick
+        window.sortBy = sortBy;
+        window.applyFilters = applyFilters;
+        window.clearFilters = clearFilters;
+        window.deleteAlumno = deleteAlumno;
+        window.confirmDelete = confirmDelete;
+        window.closeModal = closeModal;
+        window.refreshData = refreshData;
+        window.exportToExcel = exportToExcel;
+        
+        // Cerrar modal al hacer click fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+        
+        console.log('Panel de administración listo. Configurar SUPABASE_URL y SUPABASE_ANON_KEY antes de usar.');
+    </script>
+</body>
+</html>
