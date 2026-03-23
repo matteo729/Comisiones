@@ -137,6 +137,11 @@
             transform: translateY(-1px);
         }
 
+        .btn-submit:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
         .error-message {
             color: #ef4444;
             font-size: 12px;
@@ -163,6 +168,10 @@
             font-size: 14px;
             animation: slideIn 0.3s ease;
             z-index: 1000;
+        }
+
+        .toast.error {
+            background-color: #ef4444;
         }
 
         @keyframes slideIn {
@@ -235,140 +244,186 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // TUS CREDENCIALES
-        const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        const form = document.getElementById('alumnoForm');
-        const nombreInput = document.getElementById('nombre');
-        const apellidoInput = document.getElementById('apellido');
-        const dniInput = document.getElementById('dni');
-        const radioButtons = document.querySelectorAll('input[name="comision"]');
-        
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-        
-        function showError(inputId, errorId, message) {
-            document.getElementById(inputId).classList.add('error');
-            const errorDiv = document.getElementById(errorId);
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-        
-        function hideError(inputId, errorId) {
-            document.getElementById(inputId).classList.remove('error');
-            document.getElementById(errorId).classList.remove('show');
-        }
-        
-        function validateNombre() {
-            if (!nombreInput.value.trim()) {
-                showError('nombre', 'error-nombre', 'El nombre es obligatorio');
-                return false;
-            }
-            hideError('nombre', 'error-nombre');
-            return true;
-        }
-        
-        function validateApellido() {
-            if (!apellidoInput.value.trim()) {
-                showError('apellido', 'error-apellido', 'El apellido es obligatorio');
-                return false;
-            }
-            hideError('apellido', 'error-apellido');
-            return true;
-        }
-        
-        function validateDNI() {
-            const dni = dniInput.value.trim();
-            if (!dni) {
-                showError('dni', 'error-dni', 'El DNI es obligatorio');
-                return false;
-            }
-            if (!/^\d{7,8}$/.test(dni)) {
-                showError('dni', 'error-dni', 'El DNI debe tener 7 u 8 dígitos');
-                return false;
-            }
-            hideError('dni', 'error-dni');
-            return true;
-        }
-        
-        function validateComision() {
-            let selected = false;
-            radioButtons.forEach(radio => {
-                if (radio.checked) selected = true;
-            });
-            if (!selected) {
-                document.getElementById('error-comision').classList.add('show');
-                return false;
-            }
-            document.getElementById('error-comision').classList.remove('show');
-            return true;
-        }
-        
-        function getSelectedComision() {
-            let selected = '';
-            radioButtons.forEach(radio => {
-                if (radio.checked) selected = radio.value;
-            });
-            return selected;
-        }
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // TUS CREDENCIALES
+            const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            const isValid = validateNombre() && validateApellido() && validateDNI() && validateComision();
-            if (!isValid) return;
+            // Verificar que supabase esté disponible
+            if (typeof supabase === 'undefined') {
+                console.error('Supabase no se cargó correctamente');
+                alert('Error: No se pudo cargar Supabase. Verifica tu conexión a internet.');
+                return;
+            }
             
-            const alumnoData = {
-                nombre: nombreInput.value.trim(),
-                apellido: apellidoInput.value.trim(),
-                dni: dniInput.value.trim(),
-                comision: getSelectedComision()
-            };
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase inicializado correctamente');
             
-            const submitBtn = document.querySelector('.btn-submit');
-            submitBtn.textContent = 'Guardando...';
-            submitBtn.disabled = true;
+            const form = document.getElementById('alumnoForm');
+            const nombreInput = document.getElementById('nombre');
+            const apellidoInput = document.getElementById('apellido');
+            const dniInput = document.getElementById('dni');
+            const radioButtons = document.querySelectorAll('input[name="comision"]');
             
-            try {
-                const { data, error } = await supabase
-                    .from('alumnos')
-                    .insert([alumnoData]);
-                
-                if (error) {
-                    if (error.code === '23505') {
-                        showError('dni', 'error-dni', 'Este DNI ya está registrado');
-                        showToast('DNI duplicado');
-                    } else {
-                        showToast('Error al guardar: ' + error.message);
-                    }
-                } else {
-                    showToast('¡Alumno registrado correctamente!');
-                    form.reset();
-                    ['nombre', 'apellido', 'dni'].forEach(id => hideError(id, `error-${id}`));
-                    document.getElementById('error-comision').classList.remove('show');
+            function showToast(message, isError = false) {
+                const toast = document.createElement('div');
+                toast.className = 'toast' + (isError ? ' error' : '');
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+            
+            function showError(inputId, errorId, message) {
+                const input = document.getElementById(inputId);
+                if (input) input.classList.add('error');
+                const errorDiv = document.getElementById(errorId);
+                if (errorDiv) {
+                    errorDiv.textContent = message;
+                    errorDiv.classList.add('show');
                 }
-            } catch (error) {
-                showToast('Error de conexión: ' + error.message);
-            } finally {
-                submitBtn.textContent = 'Registrar Alumno';
-                submitBtn.disabled = false;
             }
+            
+            function hideError(inputId, errorId) {
+                const input = document.getElementById(inputId);
+                if (input) input.classList.remove('error');
+                const errorDiv = document.getElementById(errorId);
+                if (errorDiv) errorDiv.classList.remove('show');
+            }
+            
+            function validateNombre() {
+                const value = nombreInput.value.trim();
+                if (!value) {
+                    showError('nombre', 'error-nombre', 'El nombre es obligatorio');
+                    return false;
+                }
+                if (value.length < 2) {
+                    showError('nombre', 'error-nombre', 'El nombre debe tener al menos 2 caracteres');
+                    return false;
+                }
+                hideError('nombre', 'error-nombre');
+                return true;
+            }
+            
+            function validateApellido() {
+                const value = apellidoInput.value.trim();
+                if (!value) {
+                    showError('apellido', 'error-apellido', 'El apellido es obligatorio');
+                    return false;
+                }
+                if (value.length < 2) {
+                    showError('apellido', 'error-apellido', 'El apellido debe tener al menos 2 caracteres');
+                    return false;
+                }
+                hideError('apellido', 'error-apellido');
+                return true;
+            }
+            
+            function validateDNI() {
+                const dni = dniInput.value.trim();
+                if (!dni) {
+                    showError('dni', 'error-dni', 'El DNI es obligatorio');
+                    return false;
+                }
+                if (!/^\d{7,8}$/.test(dni)) {
+                    showError('dni', 'error-dni', 'El DNI debe tener 7 u 8 dígitos');
+                    return false;
+                }
+                hideError('dni', 'error-dni');
+                return true;
+            }
+            
+            function validateComision() {
+                let selected = false;
+                radioButtons.forEach(radio => {
+                    if (radio.checked) selected = true;
+                });
+                const errorDiv = document.getElementById('error-comision');
+                if (!selected) {
+                    if (errorDiv) errorDiv.classList.add('show');
+                    return false;
+                }
+                if (errorDiv) errorDiv.classList.remove('show');
+                return true;
+            }
+            
+            function getSelectedComision() {
+                let selected = '';
+                radioButtons.forEach(radio => {
+                    if (radio.checked) selected = radio.value;
+                });
+                return selected;
+            }
+            
+            function resetForm() {
+                nombreInput.value = '';
+                apellidoInput.value = '';
+                dniInput.value = '';
+                radioButtons.forEach(radio => radio.checked = false);
+                hideError('nombre', 'error-nombre');
+                hideError('apellido', 'error-apellido');
+                hideError('dni', 'error-dni');
+                const errorComision = document.getElementById('error-comision');
+                if (errorComision) errorComision.classList.remove('show');
+            }
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const isValid = validateNombre() && validateApellido() && validateDNI() && validateComision();
+                if (!isValid) return;
+                
+                const alumnoData = {
+                    nombre: nombreInput.value.trim(),
+                    apellido: apellidoInput.value.trim(),
+                    dni: dniInput.value.trim(),
+                    comision: getSelectedComision()
+                };
+                
+                const submitBtn = document.querySelector('.btn-submit');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Guardando...';
+                submitBtn.disabled = true;
+                
+                try {
+                    console.log('Intentando guardar:', alumnoData);
+                    
+                    const { data, error } = await supabaseClient
+                        .from('alumnos')
+                        .insert([alumnoData])
+                        .select();
+                    
+                    if (error) {
+                        console.error('Error de Supabase:', error);
+                        if (error.code === '23505') {
+                            showError('dni', 'error-dni', 'Este DNI ya está registrado');
+                            showToast('DNI duplicado', true);
+                        } else if (error.code === '42P01') {
+                            showToast('Error: La tabla "alumnos" no existe. Ejecuta el script SQL primero.', true);
+                        } else {
+                            showToast('Error al guardar: ' + error.message, true);
+                        }
+                    } else {
+                        console.log('Guardado exitoso:', data);
+                        showToast('¡Alumno registrado correctamente!');
+                        resetForm();
+                    }
+                } catch (error) {
+                    console.error('Error de conexión:', error);
+                    showToast('Error de conexión: ' + error.message, true);
+                } finally {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+            
+            nombreInput.addEventListener('input', validateNombre);
+            apellidoInput.addEventListener('input', validateApellido);
+            dniInput.addEventListener('input', validateDNI);
+            radioButtons.forEach(radio => radio.addEventListener('change', validateComision));
+            
+            console.log('Formulario listo - Esperando ingreso de datos');
         });
-        
-        nombreInput.addEventListener('input', validateNombre);
-        apellidoInput.addEventListener('input', validateApellido);
-        dniInput.addEventListener('input', validateDNI);
-        radioButtons.forEach(radio => radio.addEventListener('change', validateComision));
-        
-        console.log('Formulario listo');
     </script>
 </body>
 </html>
