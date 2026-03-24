@@ -156,11 +156,6 @@
             background-color: #2563eb;
         }
 
-        .btn-secondary {
-            background-color: #22c55e;
-            color: white;
-        }
-
         .btn-danger {
             background-color: #ef4444;
             color: white;
@@ -313,52 +308,6 @@
             gap: 12px;
             flex-wrap: wrap;
         }
-
-        /* Estilos para el PDF (se usan en la generación) */
-        .pdf-header {
-            text-align: center;
-            margin-bottom: 30px;
-            font-family: Arial, sans-serif;
-        }
-
-        .pdf-header h1 {
-            color: #1e40af;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .pdf-header p {
-            color: #6b7280;
-            font-size: 12px;
-        }
-
-        .pdf-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-family: Arial, sans-serif;
-        }
-
-        .pdf-table th {
-            background-color: #3b82f6;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        .pdf-table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-
-        .pdf-footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 10px;
-            color: #9ca3af;
-            font-family: Arial, sans-serif;
-        }
     </style>
 </head>
 <body>
@@ -371,7 +320,6 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
-                    <button class="btn btn-secondary" id="exportExcelBtn">📊 Exportar a Excel</button>
                     <button class="btn btn-purple" id="exportPdfBtn">📄 Exportar a PDF</button>
                     <button class="btn btn-danger" id="refreshBtn">🔄 Actualizar</button>
                 </div>
@@ -444,8 +392,8 @@
         </div>
     </div>
 
-    <!-- Librerías para PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Librerías -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
@@ -468,6 +416,7 @@
             let filteredAlumnos = [];
             let currentSort = { column: 'fecha_registro', direction: 'desc' };
             let alumnoToDelete = null;
+            let subscription = null;
             
             function showToast(message, isError = false) {
                 const toast = document.createElement('div');
@@ -685,25 +634,36 @@
                 }
             }
             
-            function exportToExcel() {
-                if (filteredAlumnos.length === 0) {
-                    showToast('No hay datos para exportar', true);
-                    return;
+            // Suscripción en tiempo real
+            function setupRealtimeSubscription() {
+                if (subscription) {
+                    subscription.unsubscribe();
                 }
                 
-                const headers = ['Nombre', 'Apellido', 'DNI', 'Comisión', 'IP Address', 'Fecha Registro'];
-                const rows = filteredAlumnos.map(a => [a.nombre, a.apellido, a.dni, a.comision, a.ip_address || 'N/A', formatDate(a.fecha_registro)]);
-                const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-                const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `alumnos_${new Date().toISOString().split('T')[0]}.csv`;
-                link.click();
-                URL.revokeObjectURL(link.href);
-                showToast('Exportado a Excel correctamente');
+                subscription = supabaseClient
+                    .channel('alumnos-realtime')
+                    .on('postgres_changes', 
+                        { event: 'INSERT', schema: 'public', table: 'alumnos' },
+                        (payload) => {
+                            console.log('🆕 Nuevo alumno agregado:', payload.new);
+                            showToast(`🆕 Nuevo alumno registrado: ${payload.new.nombre} ${payload.new.apellido}`);
+                            loadAlumnos();
+                        }
+                    )
+                    .on('postgres_changes', 
+                        { event: 'DELETE', schema: 'public', table: 'alumnos' },
+                        (payload) => {
+                            console.log('🗑️ Alumno eliminado:', payload.old);
+                            showToast('🗑️ Se ha eliminado un alumno');
+                            loadAlumnos();
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('📡 Estado de suscripción:', status);
+                    });
             }
             
-            // Función para exportar a PDF
+            // EXPORTAR A PDF - CON COMISIONES SEPARADAS Y SIN CORTAR NOMBRES
             function exportToPDF() {
                 if (filteredAlumnos.length === 0) {
                     showToast('No hay datos para exportar', true);
@@ -712,182 +672,131 @@
                 
                 showToast('Generando PDF...');
                 
-                // Crear el contenido del PDF
                 const pdfContent = document.createElement('div');
-                pdfContent.style.padding = '20px';
+                pdfContent.style.padding = '30px';
                 pdfContent.style.fontFamily = 'Arial, sans-serif';
+                pdfContent.style.backgroundColor = 'white';
+                pdfContent.style.color = '#000000';
                 
-                // Ordenar alfabéticamente por apellido y nombre para el PDF
-                const sortedForPDF = [...filteredAlumnos].sort((a, b) => {
-                    const nombreCompletoA = `${a.apellido} ${a.nombre}`;
-                    const nombreCompletoB = `${b.apellido} ${b.nombre}`;
-                    return nombreCompletoA.localeCompare(nombreCompletoB);
-                });
+                // Separar alumnos por comisión
+                const comisionA = filteredAlumnos.filter(a => a.comision === 'Comisión A');
+                const comisionB = filteredAlumnos.filter(a => a.comision === 'Comisión B');
+                const comisionC = filteredAlumnos.filter(a => a.comision === 'Comisión C');
                 
-                // Agrupar por comisión
-                const comisionA = sortedForPDF.filter(a => a.comision === 'Comisión A');
-                const comisionB = sortedForPDF.filter(a => a.comision === 'Comisión B');
-                const comisionC = sortedForPDF.filter(a => a.comision === 'Comisión C');
+                // Ordenar cada comisión alfabéticamente por apellido
+                const ordenarPorApellido = (a, b) => {
+                    const apellidoA = a.apellido.toLowerCase();
+                    const apellidoB = b.apellido.toLowerCase();
+                    if (apellidoA < apellidoB) return -1;
+                    if (apellidoA > apellidoB) return 1;
+                    return 0;
+                };
                 
-                // Función para crear tabla de una comisión
-                function crearTablaComision(comisionNombre, alumnos) {
-                    if (alumnos.length === 0) return '';
+                comisionA.sort(ordenarPorApellido);
+                comisionB.sort(ordenarPorApellido);
+                comisionC.sort(ordenarPorApellido);
+                
+                // Función para crear tabla de una comisión con manejo de saltos de página
+                function crearTablaComision(nombreComision, alumnos, color) {
+                    if (alumnos.length === 0) {
+                        return `
+                            <div style="margin-top: 30px; page-break-inside: avoid;">
+                                <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                    ${nombreComision} (0 alumnos)
+                                </h3>
+                                <p style="color: #6b7280; padding: 20px; text-align: center; background-color: #f9fafb; border-radius: 8px;">
+                                    No hay alumnos registrados en esta comisión
+                                </p>
+                            </div>
+                        `;
+                    }
                     
-                    return `
-                        <div style="margin-top: 30px; page-break-inside: avoid;">
-                            <h3 style="color: #1e40af; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-bottom: 15px;">
-                                ${comisionNombre} (${alumnos.length} alumnos)
-                            </h3>
-                            <table class="pdf-table" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background-color: #3b82f6; color: white;">
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">N°</th>
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Apellido</th>
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Nombre</th>
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">DNI</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${alumnos.map((alumno, index) => `
-                                        <tr>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.apellido)}</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.nombre)}</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                    // Dividir en grupos de 20 filas para evitar que se corte una fila al cambiar de página
+                    const grupos = [];
+                    for (let i = 0; i < alumnos.length; i += 20) {
+                        grupos.push(alumnos.slice(i, i + 20));
+                    }
+                    
+                    let tablasHTML = '';
+                    
+                    grupos.forEach((grupo, grupoIndex) => {
+                        const esPrimerGrupo = grupoIndex === 0;
+                        
+                        tablasHTML += `
+                            <div style="margin-top: ${esPrimerGrupo ? '30px' : '40px'}; page-break-before: ${grupoIndex > 0 ? 'avoid' : 'auto'}; page-break-inside: avoid;">
+                                ${esPrimerGrupo ? `
+                                    <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                        ${nombreComision} (${alumnos.length} alumnos)
+                                    </h3>
+                                ` : `
+                                    <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                        ${nombreComision} (continuación)
+                                    </h3>
+                                `}
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                    <thead>
+                                        <tr style="background-color: ${color}; color: white;">
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 8%;">N°</th>
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Apellido</th>
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Nombre</th>
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 15%;">DNI</th>
                                         </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
+                                    </thead>
+                                    <tbody>
+                                        ${grupo.map((alumno, idx) => {
+                                            const numeroGlobal = grupoIndex * 20 + idx + 1;
+                                            return `
+                                            <tr style="page-break-inside: avoid;">
+                                                <td style="padding: 10px; border: 1px solid #ddd;">${numeroGlobal}</td>
+                                                <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word; white-space: normal;">${escapeHtml(alumno.apellido)}</td>
+                                                <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word; white-space: normal;">${escapeHtml(alumno.nombre)}</td>
+                                                <td style="padding: 10px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                                            </tr>
+                                        `}).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    });
+                    
+                    return tablasHTML;
                 }
                 
-                // Crear el HTML completo del PDF
                 pdfContent.innerHTML = `
-                    <div class="pdf-header" style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #1e40af; font-size: 24px; margin-bottom: 10px;">Listado de Alumnos</h1>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #1e40af; font-size: 28px; margin-bottom: 10px;">📋 Listado de Alumnos por Comisión</h1>
                         <p style="color: #6b7280; font-size: 12px;">
                             Fecha de generación: ${new Date().toLocaleString('es-AR')}<br>
                             Total de alumnos: ${filteredAlumnos.length} | Límite por comisión: ${LIMITE_POR_COMISION} alumnos
                         </p>
                     </div>
                     
-                    ${crearTablaComision('Comisión A', comisionA)}
-                    ${crearTablaComision('Comisión B', comisionB)}
-                    ${crearTablaComision('Comisión C', comisionC)}
-                    
-                    <div class="pdf-footer" style="margin-top: 30px; text-align: center; font-size: 10px; color: #9ca3af;">
-                        <p>Documento generado automáticamente - Sistema de Distribución de Alumnos</p>
-                    </div>
-                `;
-                
-                // Configuración para html2pdf
-                const opt = {
-                    margin: [0.5, 0.5, 0.5, 0.5],
-                    filename: `lista_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, letterRendering: true },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-                
-                // Generar y descargar PDF
-                html2pdf().set(opt).from(pdfContent).save()
-                    .then(() => {
-                        showToast('PDF generado correctamente');
-                    })
-                    .catch((error) => {
-                        console.error('Error al generar PDF:', error);
-                        showToast('Error al generar el PDF', true);
-                    });
-            }
-            
-            // Función para exportar PDF con resumen por comisión
-            function exportToPDFWithSummary() {
-                if (filteredAlumnos.length === 0) {
-                    showToast('No hay datos para exportar', true);
-                    return;
-                }
-                
-                showToast('Generando PDF con resumen...');
-                
-                const pdfContent = document.createElement('div');
-                pdfContent.style.padding = '20px';
-                pdfContent.style.fontFamily = 'Arial, sans-serif';
-                
-                // Calcular estadísticas
-                const totalA = filteredAlumnos.filter(a => a.comision === 'Comisión A').length;
-                const totalB = filteredAlumnos.filter(a => a.comision === 'Comisión B').length;
-                const totalC = filteredAlumnos.filter(a => a.comision === 'Comisión C').length;
-                
-                pdfContent.innerHTML = `
-                    <div class="pdf-header" style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #1e40af; font-size: 28px; margin-bottom: 10px;">📋 Reporte de Alumnos</h1>
-                        <p style="color: #6b7280; font-size: 12px;">
-                            Generado: ${new Date().toLocaleString('es-AR')}
-                        </p>
+                    <div style="margin-bottom: 30px; background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #374151; margin-bottom: 15px;">📊 Resumen General</h3>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div style="flex: 1; text-align: center; background-color: #3b82f6; padding: 15px; border-radius: 8px; color: white;">
+                                <div style="font-size: 24px; font-weight: bold;">${comisionA.length}</div>
+                                <div>Comisión A</div>
+                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; background-color: #22c55e; padding: 15px; border-radius: 8px; color: white;">
+                                <div style="font-size: 24px; font-weight: bold;">${comisionB.length}</div>
+                                <div>Comisión B</div>
+                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; background-color: #f59e0b; padding: 15px; border-radius: 8px; color: white;">
+                                <div style="font-size: 24px; font-weight: bold;">${comisionC.length}</div>
+                                <div>Comisión C</div>
+                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div style="margin-bottom: 30px; background-color: #f3f4f6; padding: 15px; border-radius: 8px;">
-                        <h3 style="color: #374151; margin-bottom: 10px;">📊 Resumen General</h3>
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr style="background-color: #e5e7eb;">
-                                <th style="padding: 8px; text-align: left;">Comisión</th>
-                                <th style="padding: 8px; text-align: center;">Cantidad</th>
-                                <th style="padding: 8px; text-align: center;">Cupo</th>
-                                <th style="padding: 8px; text-align: center;">Disponible</th>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">Comisión A</td>
-                                <td style="padding: 8px; text-align: center;">${totalA}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION}</td>
-                                <td style="padding: 8px; text-align: center; color: ${LIMITE_POR_COMISION - totalA <= 10 ? '#f59e0b' : '#22c55e'};">${LIMITE_POR_COMISION - totalA}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">Comisión B</td>
-                                <td style="padding: 8px; text-align: center;">${totalB}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION}</td>
-                                <td style="padding: 8px; text-align: center; color: ${LIMITE_POR_COMISION - totalB <= 10 ? '#f59e0b' : '#22c55e'};">${LIMITE_POR_COMISION - totalB}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">Comisión C</td>
-                                <td style="padding: 8px; text-align: center;">${totalC}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION}</td>
-                                <td style="padding: 8px; text-align: center; color: ${LIMITE_POR_COMISION - totalC <= 10 ? '#f59e0b' : '#22c55e'};">${LIMITE_POR_COMISION - totalC}</td>
-                            </tr>
-                            <tr style="background-color: #e5e7eb; font-weight: bold;">
-                                <td style="padding: 8px;">TOTAL</td>
-                                <td style="padding: 8px; text-align: center;">${filteredAlumnos.length}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION * 3}</td>
-                                <td style="padding: 8px; text-align: center;">${(LIMITE_POR_COMISION * 3) - filteredAlumnos.length}</td>
-                            </tr>
-                        </table>
-                    </div>
+                    ${crearTablaComision('Comisión A', comisionA, '#3b82f6')}
+                    ${crearTablaComision('Comisión B', comisionB, '#22c55e')}
+                    ${crearTablaComision('Comisión C', comisionC, '#f59e0b')}
                     
-                    <h3 style="color: #1e40af; margin-top: 20px; margin-bottom: 10px;">📋 Listado Completo de Alumnos</h3>
-                    <table class="pdf-table" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background-color: #3b82f6; color: white;">
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">N°</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Apellido</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Nombre</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">DNI</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Comisión</th>
-                             </tr>
-                        </thead>
-                        <tbody>
-                            ${filteredAlumnos.map((alumno, index) => `
-                                <tr>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.apellido)}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.nombre)}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${alumno.comision}</td>
-                                 </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    
-                    <div class="pdf-footer" style="margin-top: 30px; text-align: center; font-size: 10px; color: #9ca3af;">
+                    <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 20px;">
                         <p>Documento generado automáticamente - Sistema de Distribución de Alumnos</p>
                         <p>Total de alumnos: ${filteredAlumnos.length} | Límite por comisión: ${LIMITE_POR_COMISION}</p>
                     </div>
@@ -915,12 +824,13 @@
             document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
-            document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
-            document.getElementById('exportPdfBtn').addEventListener('click', exportToPDFWithSummary);
+            document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
             document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
             document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
             
+            // Iniciar
             loadAlumnos();
+            setupRealtimeSubscription();
         });
     </script>
 </body>
