@@ -51,7 +51,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -85,6 +85,22 @@
         .stat-label {
             font-size: 14px;
             opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: white;
+            border-radius: 4px;
+            transition: width 0.3s;
         }
 
         .filters-section {
@@ -295,7 +311,7 @@
             <div class="header">
                 <div>
                     <h1>📋 Panel de Alumnos Registrados</h1>
-                    <div class="subtitle">Gestión completa de alumnos</div>
+                    <div class="subtitle">Gestión completa de alumnos - Límite: 60 alumnos por comisión</div>
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
@@ -304,24 +320,7 @@
                 </div>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalAlumnos">0</div>
-                    <div class="stat-label">Total Alumnos</div>
-                </div>
-                <div class="stat-card green">
-                    <div class="stat-number" id="totalComisionA">0</div>
-                    <div class="stat-label">Comisión A</div>
-                </div>
-                <div class="stat-card blue">
-                    <div class="stat-number" id="totalComisionB">0</div>
-                    <div class="stat-label">Comisión B</div>
-                </div>
-                <div class="stat-card orange">
-                    <div class="stat-number" id="totalComisionC">0</div>
-                    <div class="stat-label">Comisión C</div>
-                </div>
-            </div>
+            <div class="stats-grid" id="statsGrid"></div>
 
             <div class="filters-section">
                 <div class="filters-grid">
@@ -342,6 +341,10 @@
                         <label>🔢 Buscar por DNI</label>
                         <input type="text" id="dniFilter" placeholder="DNI">
                     </div>
+                    <div class="filter-group">
+                        <label>🌐 Buscar por IP</label>
+                        <input type="text" id="ipFilter" placeholder="IP Address">
+                    </div>
                 </div>
                 <div style="margin-top: 16px; display: flex; gap: 10px;">
                     <button class="btn btn-primary" id="applyFiltersBtn">Aplicar Filtros</button>
@@ -361,6 +364,7 @@
                                 <th onclick="sortTable('apellido')">Apellido ⬍</th>
                                 <th onclick="sortTable('dni')">DNI ⬍</th>
                                 <th onclick="sortTable('comision')">Comisión ⬍</th>
+                                <th onclick="sortTable('ip_address')">IP Address ⬍</th>
                                 <th onclick="sortTable('fecha_registro')">Fecha Registro ⬍</th>
                                 <th>Acciones</th>
                             </tr>
@@ -385,16 +389,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Esperar a que el DOM esté completamente cargado
         document.addEventListener('DOMContentLoaded', function() {
-            // TUS CREDENCIALES
             const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            // Verificar que supabase esté disponible
+            const LIMITE_POR_COMISION = 60;
+            
             if (typeof supabase === 'undefined') {
                 console.error('Supabase no se cargó correctamente');
-                alert('Error: No se pudo cargar Supabase. Verifica tu conexión a internet.');
+                alert('Error: No se pudo cargar Supabase.');
                 return;
             }
             
@@ -430,17 +433,47 @@
             }
             
             function updateStats() {
-                document.getElementById('totalAlumnos').textContent = allAlumnos.length;
-                document.getElementById('totalComisionA').textContent = allAlumnos.filter(a => a.comision === 'Comisión A').length;
-                document.getElementById('totalComisionB').textContent = allAlumnos.filter(a => a.comision === 'Comisión B').length;
-                document.getElementById('totalComisionC').textContent = allAlumnos.filter(a => a.comision === 'Comisión C').length;
+                const statsGrid = document.getElementById('statsGrid');
+                const comisiones = ['Comisión A', 'Comisión B', 'Comisión C'];
+                const colores = ['', 'green', 'blue', 'orange'];
+                
+                statsGrid.innerHTML = comisiones.map((comision, index) => {
+                    const total = allAlumnos.filter(a => a.comision === comision).length;
+                    const porcentaje = (total / LIMITE_POR_COMISION) * 100;
+                    let colorClass = colores[index + 1];
+                    
+                    return `
+                        <div class="stat-card ${colorClass}">
+                            <div class="stat-number">${total}/${LIMITE_POR_COMISION}</div>
+                            <div class="stat-label">${comision}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${porcentaje}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Total general
+                const totalGeneral = allAlumnos.length;
+                const totalLimit = LIMITE_POR_COMISION * 3;
+                const porcentajeGeneral = (totalGeneral / totalLimit) * 100;
+                
+                statsGrid.innerHTML += `
+                    <div class="stat-card" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
+                        <div class="stat-number">${totalGeneral}/${totalLimit}</div>
+                        <div class="stat-label">Total General</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${porcentajeGeneral}%"></div>
+                        </div>
+                    </div>
+                `;
             }
             
             function renderTable() {
                 const tbody = document.getElementById('tableBody');
                 
                 if (filteredAlumnos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">📭 No hay alumnos registrados</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px;">📭 No hay alumnos registrados</td></tr>';
                     return;
                 }
                 
@@ -465,6 +498,7 @@
                         <td>${escapeHtml(alumno.apellido)}</td>
                         <td>${escapeHtml(alumno.dni)}</td>
                         <td>${getBadge(alumno.comision)}</td>
+                        <td><code style="font-size: 12px;">${escapeHtml(alumno.ip_address || 'N/A')}</code></td>
                         <td>${formatDate(alumno.fecha_registro)}</td>
                         <td><span class="delete-btn" onclick="window.deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️ Eliminar</span></td>
                     </tr>
@@ -472,6 +506,7 @@
             }
             
             function escapeHtml(text) {
+                if (!text) return '';
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
@@ -491,6 +526,7 @@
                 const searchTerm = document.getElementById('searchInput').value.toLowerCase();
                 const comisionValue = document.getElementById('comisionFilter').value;
                 const dniValue = document.getElementById('dniFilter').value;
+                const ipValue = document.getElementById('ipFilter').value.toLowerCase();
                 
                 filteredAlumnos = allAlumnos.filter(alumno => {
                     if (searchTerm) {
@@ -499,6 +535,7 @@
                     }
                     if (comisionValue && alumno.comision !== comisionValue) return false;
                     if (dniValue && !alumno.dni.includes(dniValue)) return false;
+                    if (ipValue && (!alumno.ip_address || !alumno.ip_address.toLowerCase().includes(ipValue))) return false;
                     return true;
                 });
                 renderTable();
@@ -509,6 +546,7 @@
                 document.getElementById('searchInput').value = '';
                 document.getElementById('comisionFilter').value = '';
                 document.getElementById('dniFilter').value = '';
+                document.getElementById('ipFilter').value = '';
                 filteredAlumnos = [...allAlumnos];
                 renderTable();
                 showToast('Filtros limpiados');
@@ -562,11 +600,7 @@
                     
                     if (error) {
                         console.error('Error de Supabase:', error);
-                        if (error.code === '42P01') {
-                            loadingState.innerHTML = '<div>❌ Error: La tabla "alumnos" no existe. Ejecuta el script SQL primero.</div>';
-                        } else {
-                            loadingState.innerHTML = '<div>❌ Error al cargar datos: ' + error.message + '</div>';
-                        }
+                        loadingState.innerHTML = '<div>❌ Error al cargar datos: ' + error.message + '</div>';
                         showToast('Error al cargar datos: ' + error.message, true);
                         return;
                     }
@@ -598,8 +632,8 @@
                     return;
                 }
                 
-                const headers = ['Nombre', 'Apellido', 'DNI', 'Comisión', 'Fecha Registro'];
-                const rows = filteredAlumnos.map(a => [a.nombre, a.apellido, a.dni, a.comision, formatDate(a.fecha_registro)]);
+                const headers = ['Nombre', 'Apellido', 'DNI', 'Comisión', 'IP Address', 'Fecha Registro'];
+                const rows = filteredAlumnos.map(a => [a.nombre, a.apellido, a.dni, a.comision, a.ip_address || 'N/A', formatDate(a.fecha_registro)]);
                 const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
                 const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
@@ -610,7 +644,6 @@
                 showToast('Exportado correctamente');
             }
             
-            // Event listeners
             document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
@@ -618,7 +651,6 @@
             document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
             document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
             
-            // Cargar datos iniciales
             loadAlumnos();
         });
     </script>
