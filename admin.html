@@ -485,16 +485,16 @@
             
             function getBadge(comision) {
                 const classes = {
-                    'Comisión A': 'badge-a',
-                    'Comisión B': 'badge-b',
-                    'Comisión C': 'badge-c'
+                    'Comisión 1': 'badge-a',
+                    'Comisión 2': 'badge-b',
+                    'Comisión 3': 'badge-c'
                 };
                 return `<span class="badge ${classes[comision]}">${comision}</span>`;
             }
             
             function updateStats() {
                 const statsGrid = document.getElementById('statsGrid');
-                const comisiones = ['Comisión A', 'Comisión B', 'Comisión C'];
+                const comisiones = ['Comisión 1', 'Comisión 2', 'Comisión 3'];
                 const colores = ['', 'green', 'blue', 'orange'];
                 
                 statsGrid.innerHTML = comisiones.map((comision, index) => {
