@@ -177,6 +177,15 @@
             background-color: #7c3aed;
         }
 
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+
         .table-container {
             overflow-x: auto;
             border: 1px solid #e5e7eb;
@@ -311,6 +320,10 @@
             background-color: #ef4444;
         }
 
+        .toast.warning {
+            background-color: #f59e0b;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -339,7 +352,7 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
-                    <button class="btn btn-secondary" id="exportExcelBtn">📊 Exportar a Excel</button>
+                    <button class="btn btn-warning" id="generarRandomBtn">🎲 Generar 60 Alumnos Random x Comisión</button>
                     <button class="btn btn-purple" id="exportPdfBtn">📄 Exportar a PDF</button>
                     <button class="btn btn-danger" id="refreshBtn">🔄 Actualizar</button>
                 </div>
@@ -412,10 +425,9 @@
         </div>
     </div>
 
-    <!-- Librerías para PDF y Excel -->
+    <!-- Librerías -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -438,9 +450,11 @@
             let currentSort = { column: 'fecha_registro', direction: 'desc' };
             let alumnoToDelete = null;
             
-            function showToast(message, isError = false) {
+            function showToast(message, isError = false, isWarning = false) {
                 const toast = document.createElement('div');
-                toast.className = 'toast' + (isError ? ' error' : '');
+                toast.className = 'toast';
+                if (isError) toast.classList.add('error');
+                if (isWarning) toast.classList.add('warning');
                 toast.textContent = message;
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 3000);
@@ -656,41 +670,113 @@
                 }
             }
             
-            // EXPORTAR A EXCEL
-            function exportToExcel() {
-                if (filteredAlumnos.length === 0) {
-                    showToast('No hay datos para exportar', true);
+            // GENERAR ALUMNOS RANDOM (60 por comisión)
+            async function generarAlumnosRandom() {
+                const apellidos = ['García', 'Martínez', 'Rodríguez', 'Fernández', 'López', 'González', 'Pérez', 'Sánchez', 'Ramírez', 'Torres', 'Flores', 'Rivera', 'Gómez', 'Díaz', 'Álvarez', 'Romero', 'Sosa', 'Acosta', 'Medina', 'Silva'];
+                const nombres = ['Juan', 'María', 'Carlos', 'Ana', 'Luis', 'Laura', 'José', 'Lucía', 'Miguel', 'Sofía', 'Pablo', 'Valentina', 'Diego', 'Camila', 'Javier', 'Martina', 'Andrés', 'Isabella', 'Fernando', 'Emilia'];
+                
+                // Verificar cuántos alumnos hay actualmente por comisión
+                const comision1Actual = allAlumnos.filter(a => a.comision === 'Comisión 1').length;
+                const comision2Actual = allAlumnos.filter(a => a.comision === 'Comisión 2').length;
+                const comision3Actual = allAlumnos.filter(a => a.comision === 'Comisión 3').length;
+                
+                const necesarios1 = LIMITE_POR_COMISION - comision1Actual;
+                const necesarios2 = LIMITE_POR_COMISION - comision2Actual;
+                const necesarios3 = LIMITE_POR_COMISION - comision3Actual;
+                
+                if (necesarios1 <= 0 && necesarios2 <= 0 && necesarios3 <= 0) {
+                    showToast('Todas las comisiones ya están completas (60/60)', false, true);
+                    return;
+                }
+                
+                showToast(`Generando alumnos random... Necesarios: C1:${necesarios1}, C2:${necesarios2}, C3:${necesarios3}`, false, false);
+                
+                const alumnosAGenerar = [];
+                const dniesUsados = new Set();
+                
+                // Obtener DNI existentes para no duplicar
+                allAlumnos.forEach(a => dniesUsados.add(a.dni));
+                
+                // Generar alumnos para Comisión 1
+                for (let i = 0; i < necesarios1 && i < LIMITE_POR_COMISION; i++) {
+                    let dni;
+                    do {
+                        dni = Math.floor(Math.random() * 90000000) + 10000000;
+                    } while (dniesUsados.has(dni.toString()));
+                    dniesUsados.add(dni.toString());
+                    
+                    const nombre = nombres[Math.floor(Math.random() * nombres.length)];
+                    const apellido = apellidos[Math.floor(Math.random() * apellidos.length)];
+                    
+                    alumnosAGenerar.push({
+                        nombre: nombre,
+                        apellido: apellido,
+                        dni: dni.toString(),
+                        comision: 'Comisión 1',
+                        ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
+                    });
+                }
+                
+                // Generar alumnos para Comisión 2
+                for (let i = 0; i < necesarios2 && i < LIMITE_POR_COMISION; i++) {
+                    let dni;
+                    do {
+                        dni = Math.floor(Math.random() * 90000000) + 10000000;
+                    } while (dniesUsados.has(dni.toString()));
+                    dniesUsados.add(dni.toString());
+                    
+                    const nombre = nombres[Math.floor(Math.random() * nombres.length)];
+                    const apellido = apellidos[Math.floor(Math.random() * apellidos.length)];
+                    
+                    alumnosAGenerar.push({
+                        nombre: nombre,
+                        apellido: apellido,
+                        dni: dni.toString(),
+                        comision: 'Comisión 2',
+                        ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
+                    });
+                }
+                
+                // Generar alumnos para Comisión 3
+                for (let i = 0; i < necesarios3 && i < LIMITE_POR_COMISION; i++) {
+                    let dni;
+                    do {
+                        dni = Math.floor(Math.random() * 90000000) + 10000000;
+                    } while (dniesUsados.has(dni.toString()));
+                    dniesUsados.add(dni.toString());
+                    
+                    const nombre = nombres[Math.floor(Math.random() * nombres.length)];
+                    const apellido = apellidos[Math.floor(Math.random() * apellidos.length)];
+                    
+                    alumnosAGenerar.push({
+                        nombre: nombre,
+                        apellido: apellido,
+                        dni: dni.toString(),
+                        comision: 'Comisión 3',
+                        ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
+                    });
+                }
+                
+                if (alumnosAGenerar.length === 0) {
+                    showToast('No hay cupos disponibles para generar más alumnos', false, true);
                     return;
                 }
                 
                 try {
-                    const excelData = filteredAlumnos.map((alumno, index) => ({
-                        'N°': index + 1,
-                        'Apellido': alumno.apellido,
-                        'Nombre': alumno.nombre,
-                        'DNI': alumno.dni,
-                        'Comisión': alumno.comision,
-                        'IP Address': alumno.ip_address || 'N/A',
-                        'Fecha Registro': formatDate(alumno.fecha_registro)
-                    }));
+                    const { data, error } = await supabaseClient
+                        .from('alumnos')
+                        .insert(alumnosAGenerar);
                     
-                    const worksheet = XLSX.utils.json_to_sheet(excelData);
-                    const colWidths = [
-                        { wch: 6 }, { wch: 20 }, { wch: 20 }, 
-                        { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 20 }
-                    ];
-                    worksheet['!cols'] = colWidths;
-                    
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Alumnos');
-                    
-                    const fecha = new Date().toISOString().split('T')[0];
-                    XLSX.writeFile(workbook, `alumnos_${fecha}.xlsx`);
-                    
-                    showToast(`Exportados ${filteredAlumnos.length} alumnos a Excel`);
+                    if (error) {
+                        console.error('Error al generar alumnos:', error);
+                        showToast('Error al generar alumnos: ' + error.message, true);
+                    } else {
+                        showToast(`✅ Generados ${alumnosAGenerar.length} alumnos random exitosamente!`, false);
+                        await loadAlumnos();
+                    }
                 } catch (error) {
-                    console.error('Error al exportar a Excel:', error);
-                    showToast('Error al exportar a Excel', true);
+                    console.error('Error:', error);
+                    showToast('Error al generar alumnos', true);
                 }
             }
             
@@ -833,8 +919,8 @@
             document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
-            document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
             document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
+            document.getElementById('generarRandomBtn').addEventListener('click', generarAlumnosRandom);
             document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
             document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
             
