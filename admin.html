@@ -430,31 +430,7 @@
             let filteredAlumnos = [];
             let currentSort = { column: 'fecha_registro', direction: 'desc' };
             let alumnoToDelete = null;
-            
-            // Suscripción en tiempo real para actualizar automáticamente cuando se agreguen nuevos alumnos
-            function suscribirCambios() {
-                const subscription = supabaseClient
-                    .channel('alumnos_changes')
-                    .on('postgres_changes', 
-                        { event: 'INSERT', schema: 'public', table: 'alumnos' },
-                        (payload) => {
-                            console.log('Nuevo alumno agregado:', payload);
-                            loadAlumnos(); // Recargar datos automáticamente
-                            showToast('🔄 Se ha agregado un nuevo alumno. Datos actualizados.');
-                        }
-                    )
-                    .on('postgres_changes', 
-                        { event: 'DELETE', schema: 'public', table: 'alumnos' },
-                        (payload) => {
-                            console.log('Alumno eliminado:', payload);
-                            loadAlumnos(); // Recargar datos automáticamente
-                            showToast('🔄 Se ha eliminado un alumno. Datos actualizados.');
-                        }
-                    )
-                    .subscribe();
-                
-                return subscription;
-            }
+            let subscription = null;
             
             function showToast(message, isError = false) {
                 const toast = document.createElement('div');
@@ -653,7 +629,7 @@
                         return;
                     }
                     
-                    console.log('Datos cargados:', data);
+                    console.log('Datos cargados:', data ? data.length : 0, 'alumnos');
                     allAlumnos = data || [];
                     filteredAlumnos = [...allAlumnos];
                     updateStats();
@@ -674,7 +650,61 @@
                 }
             }
             
-            // EXPORTAR A PDF - CON COMISIONES SEPARADAS Y SALTO DE PÁGINA MEJORADO
+            // Suscripción en tiempo real para INSERT y DELETE
+            function setupRealtimeSubscription() {
+                if (subscription) {
+                    subscription.unsubscribe();
+                }
+                
+                subscription = supabaseClient
+                    .channel('alumnos-realtime')
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'alumnos'
+                        },
+                        (payload) => {
+                            console.log('🆕 Nuevo alumno agregado en tiempo real:', payload.new);
+                            showToast(`🆕 Nuevo alumno registrado: ${payload.new.nombre} ${payload.new.apellido}`);
+                            loadAlumnos(); // Recargar todos los datos
+                        }
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'DELETE',
+                            schema: 'public',
+                            table: 'alumnos'
+                        },
+                        (payload) => {
+                            console.log('🗑️ Alumno eliminado en tiempo real:', payload.old);
+                            showToast('🗑️ Se ha eliminado un alumno');
+                            loadAlumnos(); // Recargar todos los datos
+                        }
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'UPDATE',
+                            schema: 'public',
+                            table: 'alumnos'
+                        },
+                        (payload) => {
+                            console.log('✏️ Alumno actualizado en tiempo real:', payload.new);
+                            loadAlumnos(); // Recargar todos los datos
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('📡 Estado de suscripción:', status);
+                        if (status === 'SUBSCRIBED') {
+                            console.log('✅ Suscripción en tiempo real activa');
+                        }
+                    });
+            }
+            
+            // EXPORTAR A PDF - CON COMISIONES SEPARADAS
             function exportToPDF() {
                 if (filteredAlumnos.length === 0) {
                     showToast('No hay datos para exportar', true);
@@ -755,7 +785,7 @@
                                     </thead>
                                     <tbody>
                                         ${grupo.map((alumno, idx) => {
-                                            const numeroGlobal = esPrimerGrupo ? (grupoIndex * 25 + idx + 1) : (grupoIndex * 25 + idx + 1);
+                                            const numeroGlobal = grupoIndex * 25 + idx + 1;
                                             return `
                                             <tr style="page-break-inside: avoid;">
                                                 <td style="padding: 8px; border: 1px solid #ddd;">${numeroGlobal}</td>
@@ -841,12 +871,7 @@
             
             // Iniciar carga de datos y suscripción en tiempo real
             loadAlumnos();
-            suscribirCambios();
-            
-            // Actualizar cada 10 segundos por si acaso (fallback)
-            setInterval(() => {
-                loadAlumnos();
-            }, 10000);
+            setupRealtimeSubscription();
         });
     </script>
 </body>
