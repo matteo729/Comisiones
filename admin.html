@@ -80,11 +80,13 @@
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 8px;
+            color: white;
         }
 
         .stat-label {
             font-size: 14px;
-            opacity: 0.9;
+            color: white;
+            opacity: 0.95;
         }
 
         .progress-bar {
@@ -193,6 +195,7 @@
             font-weight: 600;
             cursor: pointer;
             border-bottom: 2px solid #e5e7eb;
+            color: #374151;
         }
 
         th:hover {
@@ -202,6 +205,7 @@
         td {
             padding: 14px 16px;
             border-bottom: 1px solid #f3f4f6;
+            color: #1f2937;
         }
 
         tr:hover {
@@ -272,6 +276,16 @@
             border-radius: 12px;
             text-align: center;
             max-width: 400px;
+        }
+
+        .modal-content h3 {
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .modal-content p {
+            color: #6b7280;
+            margin-bottom: 20px;
         }
 
         .modal-buttons {
@@ -359,7 +373,7 @@
                 </div>
                 <div style="margin-top: 16px; display: flex; gap: 10px;">
                     <button class="btn btn-primary" id="applyFiltersBtn">Aplicar Filtros</button>
-                    <button class="btn" id="clearFiltersBtn" style="background: #e5e7eb;">Limpiar</button>
+                    <button class="btn" id="clearFiltersBtn" style="background: #e5e7eb; color: #374151;">Limpiar</button>
                 </div>
             </div>
 
@@ -393,12 +407,12 @@
             <p id="deleteMessage">¿Está seguro?</p>
             <div class="modal-buttons">
                 <button class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
-                <button class="btn" id="cancelDeleteBtn">Cancelar</button>
+                <button class="btn" id="cancelDeleteBtn" style="background: #e5e7eb; color: #374151;">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Librerías para PDF -->
+    <!-- Librerías para PDF y Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -642,7 +656,7 @@
                 }
             }
             
-            // EXPORTAR A EXCEL - FUNCIONA CORRECTAMENTE
+            // EXPORTAR A EXCEL
             function exportToExcel() {
                 if (filteredAlumnos.length === 0) {
                     showToast('No hay datos para exportar', true);
@@ -650,7 +664,6 @@
                 }
                 
                 try {
-                    // Preparar los datos para Excel
                     const excelData = filteredAlumnos.map((alumno, index) => ({
                         'N°': index + 1,
                         'Apellido': alumno.apellido,
@@ -661,26 +674,16 @@
                         'Fecha Registro': formatDate(alumno.fecha_registro)
                     }));
                     
-                    // Crear hoja de cálculo
                     const worksheet = XLSX.utils.json_to_sheet(excelData);
-                    
-                    // Ajustar ancho de columnas
                     const colWidths = [
-                        { wch: 6 },  // N°
-                        { wch: 20 }, // Apellido
-                        { wch: 20 }, // Nombre
-                        { wch: 15 }, // DNI
-                        { wch: 12 }, // Comisión
-                        { wch: 15 }, // IP Address
-                        { wch: 20 }  // Fecha Registro
+                        { wch: 6 }, { wch: 20 }, { wch: 20 }, 
+                        { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 20 }
                     ];
                     worksheet['!cols'] = colWidths;
                     
-                    // Crear libro de trabajo
                     const workbook = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(workbook, worksheet, 'Alumnos');
                     
-                    // Generar y descargar archivo
                     const fecha = new Date().toISOString().split('T')[0];
                     XLSX.writeFile(workbook, `alumnos_${fecha}.xlsx`);
                     
@@ -691,7 +694,7 @@
                 }
             }
             
-            // EXPORTAR A PDF - CON COMISIÓN 1, 2, 3
+            // EXPORTAR A PDF - CON COMISIONES SEPARADAS
             function exportToPDF() {
                 if (filteredAlumnos.length === 0) {
                     showToast('No hay datos para exportar', true);
@@ -701,92 +704,108 @@
                 showToast('Generando PDF...');
                 
                 const pdfContent = document.createElement('div');
-                pdfContent.style.padding = '20px';
+                pdfContent.style.padding = '30px';
                 pdfContent.style.fontFamily = 'Arial, sans-serif';
                 pdfContent.style.backgroundColor = 'white';
+                pdfContent.style.color = '#000000';
                 
-                // Calcular estadísticas
-                const total1 = filteredAlumnos.filter(a => a.comision === 'Comisión 1').length;
-                const total2 = filteredAlumnos.filter(a => a.comision === 'Comisión 2').length;
-                const total3 = filteredAlumnos.filter(a => a.comision === 'Comisión 3').length;
+                // Separar alumnos por comisión
+                const comision1 = filteredAlumnos.filter(a => a.comision === 'Comisión 1');
+                const comision2 = filteredAlumnos.filter(a => a.comision === 'Comisión 2');
+                const comision3 = filteredAlumnos.filter(a => a.comision === 'Comisión 3');
                 
-                // Ordenar alfabéticamente por apellido para el PDF
-                const sortedForPDF = [...filteredAlumnos].sort((a, b) => {
-                    const nombreCompletoA = `${a.apellido} ${a.nombre}`;
-                    const nombreCompletoB = `${b.apellido} ${b.nombre}`;
-                    return nombreCompletoA.localeCompare(nombreCompletoB);
-                });
+                // Ordenar cada comisión alfabéticamente por apellido
+                const ordenarPorApellido = (a, b) => {
+                    const apellidoA = a.apellido.toLowerCase();
+                    const apellidoB = b.apellido.toLowerCase();
+                    if (apellidoA < apellidoB) return -1;
+                    if (apellidoA > apellidoB) return 1;
+                    return 0;
+                };
+                
+                comision1.sort(ordenarPorApellido);
+                comision2.sort(ordenarPorApellido);
+                comision3.sort(ordenarPorApellido);
+                
+                // Función para crear tabla de una comisión
+                function crearTablaComision(numero, alumnos, color) {
+                    if (alumnos.length === 0) {
+                        return `
+                            <div style="margin-top: 30px; page-break-inside: avoid;">
+                                <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                    Comisión ${numero} (0 alumnos)
+                                </h3>
+                                <p style="color: #6b7280; padding: 20px; text-align: center; background-color: #f9fafb; border-radius: 8px;">
+                                    No hay alumnos registrados en esta comisión
+                                </p>
+                            </div>
+                        `;
+                    }
+                    
+                    return `
+                        <div style="margin-top: 30px; page-break-inside: avoid;">
+                            <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                Comisión ${numero} (${alumnos.length} alumnos)
+                            </h3>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                <thead>
+                                    <tr style="background-color: ${color}; color: white;">
+                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">N°</th>
+                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Apellido</th>
+                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Nombre</th>
+                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">DNI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${alumnos.map((alumno, index) => `
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.apellido)}</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.nombre)}</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
                 
                 pdfContent.innerHTML = `
                     <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #1e40af; font-size: 24px; margin-bottom: 10px;">📋 Listado de Alumnos</h1>
+                        <h1 style="color: #1e40af; font-size: 28px; margin-bottom: 10px;">📋 Listado de Alumnos por Comisión</h1>
                         <p style="color: #6b7280; font-size: 12px;">
                             Fecha de generación: ${new Date().toLocaleString('es-AR')}<br>
                             Total de alumnos: ${filteredAlumnos.length} | Límite por comisión: ${LIMITE_POR_COMISION} alumnos
                         </p>
                     </div>
                     
-                    <div style="margin-bottom: 30px; background-color: #f3f4f6; padding: 15px; border-radius: 8px;">
-                        <h3 style="color: #374151; margin-bottom: 10px;">📊 Resumen por Comisión</h3>
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr style="background-color: #3b82f6; color: white;">
-                                <th style="padding: 10px; text-align: left;">Comisión</th>
-                                <th style="padding: 10px; text-align: center;">Cantidad</th>
-                                <th style="padding: 10px; text-align: center;">Cupo</th>
-                                <th style="padding: 10px; text-align: center;">Disponible</th>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">Comisión 1</td>
-                                <td style="padding: 8px; text-align: center;">${total1}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION}</td>
-                                <td style="padding: 8px; text-align: center; color: ${LIMITE_POR_COMISION - total1 <= 10 ? '#f59e0b' : '#22c55e'};">${LIMITE_POR_COMISION - total1}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">Comisión 2</td>
-                                <td style="padding: 8px; text-align: center;">${total2}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION}</td>
-                                <td style="padding: 8px; text-align: center; color: ${LIMITE_POR_COMISION - total2 <= 10 ? '#f59e0b' : '#22c55e'};">${LIMITE_POR_COMISION - total2}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">Comisión 3</td>
-                                <td style="padding: 8px; text-align: center;">${total3}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION}</td>
-                                <td style="padding: 8px; text-align: center; color: ${LIMITE_POR_COMISION - total3 <= 10 ? '#f59e0b' : '#22c55e'};">${LIMITE_POR_COMISION - total3}</td>
-                            </tr>
-                            <tr style="background-color: #e5e7eb; font-weight: bold;">
-                                <td style="padding: 8px;">TOTAL</td>
-                                <td style="padding: 8px; text-align: center;">${filteredAlumnos.length}</td>
-                                <td style="padding: 8px; text-align: center;">${LIMITE_POR_COMISION * 3}</td>
-                                <td style="padding: 8px; text-align: center;">${(LIMITE_POR_COMISION * 3) - filteredAlumnos.length}</td>
-                            </tr>
-                        </table>
+                    <div style="margin-bottom: 30px; background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #374151; margin-bottom: 15px;">📊 Resumen General</h3>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div style="flex: 1; text-align: center; background-color: #3b82f6; padding: 15px; border-radius: 8px; color: white;">
+                                <div style="font-size: 24px; font-weight: bold;">${comision1.length}</div>
+                                <div>Comisión 1</div>
+                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; background-color: #22c55e; padding: 15px; border-radius: 8px; color: white;">
+                                <div style="font-size: 24px; font-weight: bold;">${comision2.length}</div>
+                                <div>Comisión 2</div>
+                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; background-color: #f59e0b; padding: 15px; border-radius: 8px; color: white;">
+                                <div style="font-size: 24px; font-weight: bold;">${comision3.length}</div>
+                                <div>Comisión 3</div>
+                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <h3 style="color: #1e40af; margin-top: 20px; margin-bottom: 10px;">📋 Listado Completo de Alumnos</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background-color: #3b82f6; color: white;">
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">N°</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Apellido</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Nombre</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">DNI</th>
-                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Comisión</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${sortedForPDF.map((alumno, index) => `
-                                <tr>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.apellido)}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.nombre)}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${alumno.comision}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                    ${crearTablaComision(1, comision1, '#3b82f6')}
+                    ${crearTablaComision(2, comision2, '#22c55e')}
+                    ${crearTablaComision(3, comision3, '#f59e0b')}
                     
-                    <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #9ca3af;">
+                    <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 20px;">
                         <p>Documento generado automáticamente - Sistema de Distribución de Alumnos</p>
                         <p>Total de alumnos: ${filteredAlumnos.length} | Límite por comisión: ${LIMITE_POR_COMISION}</p>
                     </div>
