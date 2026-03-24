@@ -22,7 +22,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
         }
 
@@ -95,27 +95,67 @@
 
         .radio-option {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .radio-option:hover {
+            background-color: #f9fafb;
+            border-color: #3b82f6;
+        }
+
+        .radio-option.disabled {
+            background-color: #f3f4f6;
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .radio-option input[type="radio"] {
             width: 18px;
             height: 18px;
-            margin-right: 10px;
+            margin-right: 12px;
+            margin-top: 2px;
             cursor: pointer;
         }
 
-        .radio-option label {
-            margin-bottom: 0;
-            cursor: pointer;
-            font-weight: normal;
+        .radio-option.disabled input[type="radio"] {
+            cursor: not-allowed;
+        }
+
+        .radio-content {
+            flex: 1;
+        }
+
+        .radio-title {
+            font-weight: 500;
+            color: #1f2937;
         }
 
         .comision-desc {
             font-size: 12px;
             color: #6b7280;
-            margin-left: 28px;
-            margin-top: 2px;
+            margin-top: 4px;
+        }
+
+        .cupo-info {
+            font-size: 11px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .cupo-disponible {
+            color: #22c55e;
+        }
+
+        .cupo-lleno {
+            color: #ef4444;
+        }
+
+        .cupo-casi-lleno {
+            color: #f59e0b;
         }
 
         .btn-submit {
@@ -132,7 +172,7 @@
             transition: all 0.2s;
         }
 
-        .btn-submit:hover {
+        .btn-submit:hover:not(:disabled) {
             background-color: #16a34a;
             transform: translateY(-1px);
         }
@@ -174,6 +214,10 @@
             background-color: #ef4444;
         }
 
+        .toast.warning {
+            background-color: #f59e0b;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -184,13 +228,37 @@
                 opacity: 1;
             }
         }
+
+        .alert-banner {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #92400e;
+        }
+
+        .alert-banner.error {
+            background-color: #fee2e2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .alert-banner.success {
+            background-color: #d1fae5;
+            border-left-color: #22c55e;
+            color: #065f46;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
             <h1>Formulario de Distribución de Alumnos</h1>
-            <div class="subtitle">Complete los datos para asignar una comisión</div>
+            <div class="subtitle">Complete los datos para asignar una comisión (Máximo 60 alumnos por comisión)</div>
+            
+            <div id="alertMessage" style="display: none;" class="alert-banner"></div>
             
             <form id="alumnoForm">
                 <div class="form-row">
@@ -215,39 +283,51 @@
                 
                 <div class="form-group">
                     <label>Comisión <span class="required">*</span></label>
-                    <div class="radio-group">
-                        <div class="radio-option">
+                    <div class="radio-group" id="radioGroup">
+                        <div class="radio-option" data-comision="Comisión A">
                             <input type="radio" id="comisionA" name="comision" value="Comisión A">
-                            <label for="comisionA">Comisión A - Lunes y Miércoles 18:00-20:00</label>
+                            <div class="radio-content">
+                                <div class="radio-title">Comisión A - Lunes y Miércoles 18:00-20:00</div>
+                                <div class="comision-desc">Horario intensivo con enfoque práctico</div>
+                                <div class="cupo-info" id="cupoA"></div>
+                            </div>
                         </div>
                         
-                        <div class="radio-option">
+                        <div class="radio-option" data-comision="Comisión B">
                             <input type="radio" id="comisionB" name="comision" value="Comisión B">
-                            <label for="comisionB">Comisión B - Martes y Jueves 18:00-20:00</label>
+                            <div class="radio-content">
+                                <div class="radio-title">Comisión B - Martes y Jueves 18:00-20:00</div>
+                                <div class="comision-desc">Horario teórico-práctico con proyectos grupales</div>
+                                <div class="cupo-info" id="cupoB"></div>
+                            </div>
                         </div>
                         
-                        <div class="radio-option">
+                        <div class="radio-option" data-comision="Comisión C">
                             <input type="radio" id="comisionC" name="comision" value="Comisión C">
-                            <label for="comisionC">Comisión C - Sábados 09:00-13:00</label>
+                            <div class="radio-content">
+                                <div class="radio-title">Comisión C - Sábados 09:00-13:00</div>
+                                <div class="comision-desc">Horario intensivo de fin de semana</div>
+                                <div class="cupo-info" id="cupoC"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="error-message" id="error-comision">Debe seleccionar una comisión</div>
                 </div>
                 
-                <button type="submit" class="btn-submit">Registrar Alumno</button>
+                <button type="submit" class="btn-submit" id="submitBtn">Registrar Alumno</button>
             </form>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Esperar a que el DOM esté completamente cargado
         document.addEventListener('DOMContentLoaded', function() {
             // TUS CREDENCIALES
             const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            // Verificar que supabase esté disponible
+            const LIMITE_POR_COMISION = 60;
+            
             if (typeof supabase === 'undefined') {
                 console.error('Supabase no se cargó correctamente');
                 alert('Error: No se pudo cargar Supabase. Verifica tu conexión a internet.');
@@ -262,10 +342,158 @@
             const apellidoInput = document.getElementById('apellido');
             const dniInput = document.getElementById('dni');
             const radioButtons = document.querySelectorAll('input[name="comision"]');
+            const submitBtn = document.getElementById('submitBtn');
+            const alertMessage = document.getElementById('alertMessage');
             
-            function showToast(message, isError = false) {
+            let comisionesDisponibles = {
+                'Comisión A': { total: 0, disponible: 0 },
+                'Comisión B': { total: 0, disponible: 0 },
+                'Comisión C': { total: 0, disponible: 0 }
+            };
+            
+            let ipAddress = '';
+            
+            // Función para obtener la IP del usuario
+            async function obtenerIP() {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    ipAddress = data.ip;
+                    console.log('IP obtenida:', ipAddress);
+                    
+                    // Verificar si esta IP ya registró un alumno
+                    await verificarIPRegistrada();
+                } catch (error) {
+                    console.error('Error al obtener IP:', error);
+                    ipAddress = 'desconocida';
+                }
+            }
+            
+            // Verificar si la IP ya tiene un registro
+            async function verificarIPRegistrada() {
+                if (!ipAddress || ipAddress === 'desconocida') return;
+                
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('alumnos')
+                        .select('id')
+                        .eq('ip_address', ipAddress)
+                        .limit(1);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        mostrarAlerta('⚠️ Ya has completado este formulario anteriormente. Solo se permite un registro por persona.', 'error');
+                        submitBtn.disabled = true;
+                        form.querySelectorAll('input').forEach(input => input.disabled = true);
+                    }
+                } catch (error) {
+                    console.error('Error al verificar IP:', error);
+                }
+            }
+            
+            // Verificar si el DNI ya está registrado
+            async function verificarDNIRegistrado(dni) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('alumnos')
+                        .select('id')
+                        .eq('dni', dni)
+                        .limit(1);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        mostrarAlerta('⚠️ Este DNI ya ha sido registrado anteriormente. No se permite duplicados.', 'error');
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error al verificar DNI:', error);
+                    return false;
+                }
+            }
+            
+            // Cargar conteos de comisiones
+            async function cargarConteosComisiones() {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('alumnos')
+                        .select('comision');
+                    
+                    if (error) throw error;
+                    
+                    // Reiniciar conteos
+                    comisionesDisponibles = {
+                        'Comisión A': { total: 0, disponible: LIMITE_POR_COMISION },
+                        'Comisión B': { total: 0, disponible: LIMITE_POR_COMISION },
+                        'Comisión C': { total: 0, disponible: LIMITE_POR_COMISION }
+                    };
+                    
+                    // Contar alumnos por comisión
+                    data.forEach(alumno => {
+                        if (comisionesDisponibles[alumno.comision]) {
+                            comisionesDisponibles[alumno.comision].total++;
+                            comisionesDisponibles[alumno.comision].disponible = LIMITE_POR_COMISION - comisionesDisponibles[alumno.comision].total;
+                        }
+                    });
+                    
+                    actualizarUIComisiones();
+                    
+                } catch (error) {
+                    console.error('Error al cargar conteos:', error);
+                }
+            }
+            
+            // Actualizar la interfaz con los cupos disponibles
+            function actualizarUIComisiones() {
+                const cupoA = document.getElementById('cupoA');
+                const cupoB = document.getElementById('cupoB');
+                const cupoC = document.getElementById('cupoC');
+                
+                actualizarCupoUI('Comisión A', cupoA);
+                actualizarCupoUI('Comisión B', cupoB);
+                actualizarCupoUI('Comisión C', cupoC);
+            }
+            
+            function actualizarCupoUI(comision, elemento) {
+                const disponible = comisionesDisponibles[comision].disponible;
+                const total = comisionesDisponibles[comision].total;
+                
+                if (disponible <= 0) {
+                    elemento.innerHTML = `🔴 COMISIÓN COMPLETA (${total}/${LIMITE_POR_COMISION})`;
+                    elemento.className = 'cupo-info cupo-lleno';
+                    // Deshabilitar el radio button de esta comisión
+                    const radio = document.querySelector(`input[value="${comision}"]`);
+                    const optionDiv = radio.closest('.radio-option');
+                    if (radio) {
+                        radio.disabled = true;
+                        optionDiv.classList.add('disabled');
+                    }
+                } else if (disponible <= 10) {
+                    elemento.innerHTML = `⚠️ ÚLTIMOS ${disponible} CUPOS DISPONIBLES (${total}/${LIMITE_POR_COMISION})`;
+                    elemento.className = 'cupo-info cupo-casi-lleno';
+                } else {
+                    elemento.innerHTML = `✅ ${disponible} cupos disponibles (${total}/${LIMITE_POR_COMISION})`;
+                    elemento.className = 'cupo-info cupo-disponible';
+                }
+            }
+            
+            function mostrarAlerta(mensaje, tipo = 'warning') {
+                alertMessage.textContent = mensaje;
+                alertMessage.className = `alert-banner ${tipo}`;
+                alertMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    alertMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            function showToast(message, isError = false, isWarning = false) {
                 const toast = document.createElement('div');
-                toast.className = 'toast' + (isError ? ' error' : '');
+                toast.className = 'toast';
+                if (isError) toast.classList.add('error');
+                if (isWarning) toast.classList.add('warning');
                 toast.textContent = message;
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 3000);
@@ -332,15 +560,28 @@
             
             function validateComision() {
                 let selected = false;
+                let selectedValue = '';
                 radioButtons.forEach(radio => {
-                    if (radio.checked) selected = true;
+                    if (radio.checked && !radio.disabled) {
+                        selected = true;
+                        selectedValue = radio.value;
+                    }
                 });
+                
                 const errorDiv = document.getElementById('error-comision');
                 if (!selected) {
-                    if (errorDiv) errorDiv.classList.add('show');
+                    errorDiv.classList.add('show');
                     return false;
                 }
-                if (errorDiv) errorDiv.classList.remove('show');
+                
+                // Verificar si la comisión seleccionada tiene cupo
+                if (comisionesDisponibles[selectedValue] && comisionesDisponibles[selectedValue].disponible <= 0) {
+                    errorDiv.textContent = 'Esta comisión no tiene cupos disponibles';
+                    errorDiv.classList.add('show');
+                    return false;
+                }
+                
+                errorDiv.classList.remove('show');
                 return true;
             }
             
@@ -356,7 +597,9 @@
                 nombreInput.value = '';
                 apellidoInput.value = '';
                 dniInput.value = '';
-                radioButtons.forEach(radio => radio.checked = false);
+                radioButtons.forEach(radio => {
+                    if (!radio.disabled) radio.checked = false;
+                });
                 hideError('nombre', 'error-nombre');
                 hideError('apellido', 'error-apellido');
                 hideError('dni', 'error-dni');
@@ -370,14 +613,28 @@
                 const isValid = validateNombre() && validateApellido() && validateDNI() && validateComision();
                 if (!isValid) return;
                 
+                const dni = dniInput.value.trim();
+                
+                // Verificar DNI duplicado
+                const dniExistente = await verificarDNIRegistrado(dni);
+                if (dniExistente) return;
+                
+                const comisionSeleccionada = getSelectedComision();
+                
+                // Verificar cupo disponible nuevamente (por si cambió)
+                if (comisionesDisponibles[comisionSeleccionada].disponible <= 0) {
+                    showToast('Lo sentimos, esta comisión ya no tiene cupos disponibles', true);
+                    return;
+                }
+                
                 const alumnoData = {
                     nombre: nombreInput.value.trim(),
                     apellido: apellidoInput.value.trim(),
-                    dni: dniInput.value.trim(),
-                    comision: getSelectedComision()
+                    dni: dni,
+                    comision: comisionSeleccionada,
+                    ip_address: ipAddress
                 };
                 
-                const submitBtn = document.querySelector('.btn-submit');
                 const originalText = submitBtn.textContent;
                 submitBtn.textContent = 'Guardando...';
                 submitBtn.disabled = true;
@@ -402,24 +659,46 @@
                         }
                     } else {
                         console.log('Guardado exitoso:', data);
-                        showToast('¡Alumno registrado correctamente!');
+                        mostrarAlerta(`✅ ¡Registro exitoso! Has sido asignado a ${comisionSeleccionada}`, 'success');
+                        showToast(`¡Alumno registrado correctamente en ${comisionSeleccionada}!`);
                         resetForm();
+                        
+                        // Recargar conteos después del registro
+                        await cargarConteosComisiones();
+                        
+                        // Deshabilitar formulario si la IP ya registró
+                        if (ipAddress && ipAddress !== 'desconocida') {
+                            submitBtn.disabled = true;
+                            form.querySelectorAll('input').forEach(input => input.disabled = true);
+                            mostrarAlerta('Gracias por registrarte. Ya has completado el formulario.', 'success');
+                        }
                     }
                 } catch (error) {
                     console.error('Error de conexión:', error);
                     showToast('Error de conexión: ' + error.message, true);
                 } finally {
                     submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
+                    if (!submitBtn.disabled) {
+                        submitBtn.disabled = false;
+                    }
                 }
             });
             
             nombreInput.addEventListener('input', validateNombre);
             apellidoInput.addEventListener('input', validateApellido);
             dniInput.addEventListener('input', validateDNI);
-            radioButtons.forEach(radio => radio.addEventListener('change', validateComision));
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', validateComision);
+            });
             
-            console.log('Formulario listo - Esperando ingreso de datos');
+            // Inicializar
+            async function inicializar() {
+                await cargarConteosComisiones();
+                await obtenerIP();
+                console.log('Formulario listo - Límite por comisión: ' + LIMITE_POR_COMISION);
+            }
+            
+            inicializar();
         });
     </script>
 </body>
