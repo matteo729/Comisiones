@@ -158,16 +158,6 @@
             background-color: #2563eb;
         }
 
-        .btn-secondary {
-            background-color: #22c55e;
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-        }
-
         .btn-purple {
             background-color: #8b5cf6;
             color: white;
@@ -177,13 +167,9 @@
             background-color: #7c3aed;
         }
 
-        .btn-warning {
-            background-color: #f59e0b;
+        .btn-danger {
+            background-color: #ef4444;
             color: white;
-        }
-
-        .btn-warning:hover {
-            background-color: #d97706;
         }
 
         .table-container {
@@ -320,10 +306,6 @@
             background-color: #ef4444;
         }
 
-        .toast.warning {
-            background-color: #f59e0b;
-        }
-
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -352,7 +334,6 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
-                    <button class="btn btn-warning" id="generarRandomBtn">🎲 Generar 60 Alumnos Random x Comisión</button>
                     <button class="btn btn-purple" id="exportPdfBtn">📄 Exportar a PDF</button>
                     <button class="btn btn-danger" id="refreshBtn">🔄 Actualizar</button>
                 </div>
@@ -450,11 +431,34 @@
             let currentSort = { column: 'fecha_registro', direction: 'desc' };
             let alumnoToDelete = null;
             
-            function showToast(message, isError = false, isWarning = false) {
+            // Suscripción en tiempo real para actualizar automáticamente cuando se agreguen nuevos alumnos
+            function suscribirCambios() {
+                const subscription = supabaseClient
+                    .channel('alumnos_changes')
+                    .on('postgres_changes', 
+                        { event: 'INSERT', schema: 'public', table: 'alumnos' },
+                        (payload) => {
+                            console.log('Nuevo alumno agregado:', payload);
+                            loadAlumnos(); // Recargar datos automáticamente
+                            showToast('🔄 Se ha agregado un nuevo alumno. Datos actualizados.');
+                        }
+                    )
+                    .on('postgres_changes', 
+                        { event: 'DELETE', schema: 'public', table: 'alumnos' },
+                        (payload) => {
+                            console.log('Alumno eliminado:', payload);
+                            loadAlumnos(); // Recargar datos automáticamente
+                            showToast('🔄 Se ha eliminado un alumno. Datos actualizados.');
+                        }
+                    )
+                    .subscribe();
+                
+                return subscription;
+            }
+            
+            function showToast(message, isError = false) {
                 const toast = document.createElement('div');
-                toast.className = 'toast';
-                if (isError) toast.classList.add('error');
-                if (isWarning) toast.classList.add('warning');
+                toast.className = 'toast' + (isError ? ' error' : '');
                 toast.textContent = message;
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 3000);
@@ -659,9 +663,9 @@
                     tableContent.style.display = 'block';
                     
                     if (allAlumnos.length === 0) {
-                        showToast('No hay alumnos registrados aún');
+                        console.log('No hay alumnos registrados aún');
                     } else {
-                        showToast(`${allAlumnos.length} alumnos cargados`);
+                        console.log(`${allAlumnos.length} alumnos cargados`);
                     }
                 } catch (error) {
                     console.error('Error de conexión:', error);
@@ -670,117 +674,7 @@
                 }
             }
             
-            // GENERAR ALUMNOS RANDOM (60 por comisión)
-            async function generarAlumnosRandom() {
-                const apellidos = ['García', 'Martínez', 'Rodríguez', 'Fernández', 'López', 'González', 'Pérez', 'Sánchez', 'Ramírez', 'Torres', 'Flores', 'Rivera', 'Gómez', 'Díaz', 'Álvarez', 'Romero', 'Sosa', 'Acosta', 'Medina', 'Silva'];
-                const nombres = ['Juan', 'María', 'Carlos', 'Ana', 'Luis', 'Laura', 'José', 'Lucía', 'Miguel', 'Sofía', 'Pablo', 'Valentina', 'Diego', 'Camila', 'Javier', 'Martina', 'Andrés', 'Isabella', 'Fernando', 'Emilia'];
-                
-                // Verificar cuántos alumnos hay actualmente por comisión
-                const comision1Actual = allAlumnos.filter(a => a.comision === 'Comisión 1').length;
-                const comision2Actual = allAlumnos.filter(a => a.comision === 'Comisión 2').length;
-                const comision3Actual = allAlumnos.filter(a => a.comision === 'Comisión 3').length;
-                
-                const necesarios1 = LIMITE_POR_COMISION - comision1Actual;
-                const necesarios2 = LIMITE_POR_COMISION - comision2Actual;
-                const necesarios3 = LIMITE_POR_COMISION - comision3Actual;
-                
-                if (necesarios1 <= 0 && necesarios2 <= 0 && necesarios3 <= 0) {
-                    showToast('Todas las comisiones ya están completas (60/60)', false, true);
-                    return;
-                }
-                
-                showToast(`Generando alumnos random... Necesarios: C1:${necesarios1}, C2:${necesarios2}, C3:${necesarios3}`, false, false);
-                
-                const alumnosAGenerar = [];
-                const dniesUsados = new Set();
-                
-                // Obtener DNI existentes para no duplicar
-                allAlumnos.forEach(a => dniesUsados.add(a.dni));
-                
-                // Generar alumnos para Comisión 1
-                for (let i = 0; i < necesarios1 && i < LIMITE_POR_COMISION; i++) {
-                    let dni;
-                    do {
-                        dni = Math.floor(Math.random() * 90000000) + 10000000;
-                    } while (dniesUsados.has(dni.toString()));
-                    dniesUsados.add(dni.toString());
-                    
-                    const nombre = nombres[Math.floor(Math.random() * nombres.length)];
-                    const apellido = apellidos[Math.floor(Math.random() * apellidos.length)];
-                    
-                    alumnosAGenerar.push({
-                        nombre: nombre,
-                        apellido: apellido,
-                        dni: dni.toString(),
-                        comision: 'Comisión 1',
-                        ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
-                    });
-                }
-                
-                // Generar alumnos para Comisión 2
-                for (let i = 0; i < necesarios2 && i < LIMITE_POR_COMISION; i++) {
-                    let dni;
-                    do {
-                        dni = Math.floor(Math.random() * 90000000) + 10000000;
-                    } while (dniesUsados.has(dni.toString()));
-                    dniesUsados.add(dni.toString());
-                    
-                    const nombre = nombres[Math.floor(Math.random() * nombres.length)];
-                    const apellido = apellidos[Math.floor(Math.random() * apellidos.length)];
-                    
-                    alumnosAGenerar.push({
-                        nombre: nombre,
-                        apellido: apellido,
-                        dni: dni.toString(),
-                        comision: 'Comisión 2',
-                        ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
-                    });
-                }
-                
-                // Generar alumnos para Comisión 3
-                for (let i = 0; i < necesarios3 && i < LIMITE_POR_COMISION; i++) {
-                    let dni;
-                    do {
-                        dni = Math.floor(Math.random() * 90000000) + 10000000;
-                    } while (dniesUsados.has(dni.toString()));
-                    dniesUsados.add(dni.toString());
-                    
-                    const nombre = nombres[Math.floor(Math.random() * nombres.length)];
-                    const apellido = apellidos[Math.floor(Math.random() * apellidos.length)];
-                    
-                    alumnosAGenerar.push({
-                        nombre: nombre,
-                        apellido: apellido,
-                        dni: dni.toString(),
-                        comision: 'Comisión 3',
-                        ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
-                    });
-                }
-                
-                if (alumnosAGenerar.length === 0) {
-                    showToast('No hay cupos disponibles para generar más alumnos', false, true);
-                    return;
-                }
-                
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('alumnos')
-                        .insert(alumnosAGenerar);
-                    
-                    if (error) {
-                        console.error('Error al generar alumnos:', error);
-                        showToast('Error al generar alumnos: ' + error.message, true);
-                    } else {
-                        showToast(`✅ Generados ${alumnosAGenerar.length} alumnos random exitosamente!`, false);
-                        await loadAlumnos();
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    showToast('Error al generar alumnos', true);
-                }
-            }
-            
-            // EXPORTAR A PDF - CON COMISIONES SEPARADAS
+            // EXPORTAR A PDF - CON COMISIONES SEPARADAS Y SALTO DE PÁGINA MEJORADO
             function exportToPDF() {
                 if (filteredAlumnos.length === 0) {
                     showToast('No hay datos para exportar', true);
@@ -813,7 +707,7 @@
                 comision2.sort(ordenarPorApellido);
                 comision3.sort(ordenarPorApellido);
                 
-                // Función para crear tabla de una comisión
+                // Función para crear tabla de una comisión con mejor manejo de saltos de página
                 function crearTablaComision(numero, alumnos, color) {
                     if (alumnos.length === 0) {
                         return `
@@ -828,33 +722,55 @@
                         `;
                     }
                     
-                    return `
-                        <div style="margin-top: 30px; page-break-inside: avoid;">
-                            <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
-                                Comisión ${numero} (${alumnos.length} alumnos)
-                            </h3>
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                                <thead>
-                                    <tr style="background-color: ${color}; color: white;">
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">N°</th>
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Apellido</th>
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Nombre</th>
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">DNI</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${alumnos.map((alumno, index) => `
-                                        <tr>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.apellido)}</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.nombre)}</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                    // Dividir la tabla en grupos de 25 filas para evitar saltos de página cortando nombres
+                    const grupos = [];
+                    for (let i = 0; i < alumnos.length; i += 25) {
+                        grupos.push(alumnos.slice(i, i + 25));
+                    }
+                    
+                    let tablasHTML = '';
+                    
+                    grupos.forEach((grupo, grupoIndex) => {
+                        const esPrimerGrupo = grupoIndex === 0;
+                        
+                        tablasHTML += `
+                            <div style="margin-top: ${esPrimerGrupo ? '30px' : '40px'}; page-break-inside: avoid; page-break-after: ${grupoIndex === grupos.length - 1 ? 'auto' : 'avoid'};">
+                                ${esPrimerGrupo ? `
+                                    <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                        Comisión ${numero} (${alumnos.length} alumnos)
+                                    </h3>
+                                ` : `
+                                    <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                        Comisión ${numero} (continuación)
+                                    </h3>
+                                `}
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                    <thead>
+                                        <tr style="background-color: ${color}; color: white;">
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 8%;">N°</th>
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 25%;">Apellido</th>
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 25%;">Nombre</th>
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 15%;">DNI</th>
                                         </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
+                                    </thead>
+                                    <tbody>
+                                        ${grupo.map((alumno, idx) => {
+                                            const numeroGlobal = esPrimerGrupo ? (grupoIndex * 25 + idx + 1) : (grupoIndex * 25 + idx + 1);
+                                            return `
+                                            <tr style="page-break-inside: avoid;">
+                                                <td style="padding: 8px; border: 1px solid #ddd;">${numeroGlobal}</td>
+                                                <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.apellido)}</td>
+                                                <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.nombre)}</td>
+                                                <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                                            </tr>
+                                        `}).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    });
+                    
+                    return tablasHTML;
                 }
                 
                 pdfContent.innerHTML = `
@@ -920,11 +836,17 @@
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
             document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
-            document.getElementById('generarRandomBtn').addEventListener('click', generarAlumnosRandom);
             document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
             document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
             
+            // Iniciar carga de datos y suscripción en tiempo real
             loadAlumnos();
+            suscribirCambios();
+            
+            // Actualizar cada 10 segundos por si acaso (fallback)
+            setInterval(() => {
+                loadAlumnos();
+            }, 10000);
         });
     </script>
 </body>
