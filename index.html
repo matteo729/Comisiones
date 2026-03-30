@@ -329,6 +329,42 @@
             color: #065f46;
         }
 
+        /* Alerta de DNI duplicado - más visible */
+        .alert-duplicate {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid #dc2626;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #991b1b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: shake 0.5s ease;
+        }
+
+        .alert-duplicate .icon {
+            font-size: 28px;
+        }
+
+        .alert-duplicate .title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .alert-duplicate .message {
+            font-weight: 500;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
         .form-watermark {
             text-align: center;
             margin-top: 28px;
@@ -367,6 +403,7 @@
             </div>
             
             <div id="alertMessage" style="display: none;" class="alert-banner"></div>
+            <div id="alertDuplicate" style="display: none;" class="alert-duplicate"></div>
             
             <form id="alumnoForm">
                 <div class="form-row">
@@ -461,6 +498,7 @@
             const radioButtons = document.querySelectorAll('input[name="comision"]');
             const submitBtn = document.getElementById('submitBtn');
             const alertMessage = document.getElementById('alertMessage');
+            const alertDuplicate = document.getElementById('alertDuplicate');
             const statusBanner = document.getElementById('statusBanner');
             const statusText = document.getElementById('statusText');
             const statusBadge = document.getElementById('statusBadge');
@@ -497,24 +535,86 @@
                 }
             }
             
+            // Mostrar alerta de DNI duplicado con mensaje claro
+            function mostrarAlertaDNIDuplicado(dni) {
+                alertDuplicate.innerHTML = `
+                    <div class="icon">⚠️</div>
+                    <div>
+                        <div class="title">¡ATENCIÓN! DNI YA REGISTRADO</div>
+                        <div class="message">El DNI N° ${dni} ya ha sido registrado anteriormente en el sistema.</div>
+                        <div style="margin-top: 8px; font-size: 12px; color: #b91c1c;">❌ NO PUEDES VOLVER A INSCRIBIRTE CON EL MISMO DNI</div>
+                        <div style="margin-top: 4px; font-size: 11px; color: #991b1b;">Si crees que esto es un error, contacta al administrador.</div>
+                    </div>
+                `;
+                alertDuplicate.style.display = 'flex';
+                
+                // Ocultar después de 8 segundos
+                setTimeout(() => {
+                    alertDuplicate.style.display = 'none';
+                }, 8000);
+            }
+            
+            function ocultarAlertaDNIDuplicado() {
+                alertDuplicate.style.display = 'none';
+            }
+            
             async function verificarDNIRegistrado(dni) {
                 try {
                     const { data, error } = await supabaseClient
                         .from('alumnos')
-                        .select('id')
+                        .select('id, nombre, apellido')
                         .eq('dni', dni)
                         .limit(1);
                     
                     if (error) throw error;
                     
                     if (data && data.length > 0) {
-                        mostrarAlerta('⚠️ Este DNI ya ha sido registrado anteriormente.', 'error');
+                        // Mostrar alerta visible y clara
+                        mostrarAlertaDNIDuplicado(dni);
+                        // También mostrar en el campo de error
+                        showError('dni', 'error-dni', '❌ ESTE DNI YA ESTÁ REGISTRADO. NO PUEDES VOLVER A INSCRIBIRTE.');
+                        // Limpiar el campo DNI para que el usuario lo vea
+                        dniInput.classList.add('error');
+                        // Enfocar el campo para que el usuario lo vea
+                        dniInput.focus();
                         return true;
                     }
                     return false;
                 } catch (error) {
                     console.error('Error al verificar DNI:', error);
                     return false;
+                }
+            }
+            
+            // Verificación en tiempo real mientras escribe el DNI
+            async function verificarDNIEnTiempoReal() {
+                const dni = dniInput.value.trim();
+                if (dni && /^\d{7,8}$/.test(dni)) {
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from('alumnos')
+                            .select('id')
+                            .eq('dni', dni)
+                            .limit(1);
+                        
+                        if (error) throw error;
+                        
+                        if (data && data.length > 0) {
+                            mostrarAlertaDNIDuplicado(dni);
+                            dniInput.classList.add('error');
+                            showError('dni', 'error-dni', '❌ ESTE DNI YA ESTÁ REGISTRADO');
+                        } else {
+                            dniInput.classList.remove('error');
+                            hideError('dni', 'error-dni');
+                            ocultarAlertaDNIDuplicado();
+                        }
+                    } catch (error) {
+                        console.error('Error en verificación en tiempo real:', error);
+                    }
+                } else if (dni === '') {
+                    dniInput.classList.remove('error');
+                    hideError('dni', 'error-dni');
+                    ocultarAlertaDNIDuplicado();
                 }
             }
             
@@ -701,6 +801,7 @@
                 hideError('dni', 'error-dni');
                 const errorComision = document.getElementById('error-comision');
                 if (errorComision) errorComision.classList.remove('show');
+                ocultarAlertaDNIDuplicado();
             }
             
             form.addEventListener('submit', async (e) => {
@@ -744,8 +845,9 @@
                     
                     if (error) {
                         if (error.code === '23505') {
-                            showError('dni', 'error-dni', 'Este DNI ya está registrado');
-                            showToast('DNI duplicado', true);
+                            mostrarAlertaDNIDuplicado(dni);
+                            showError('dni', 'error-dni', '❌ ESTE DNI YA ESTÁ REGISTRADO');
+                            showToast('DNI duplicado - No puedes volver a inscribirte', true);
                         } else if (error.message && error.message.includes('límite')) {
                             showToast(error.message, true);
                             mostrarAlerta(error.message, 'error');
@@ -753,8 +855,8 @@
                             showToast('Error al guardar: ' + error.message, true);
                         }
                     } else {
-                        mostrarAlerta(`✅ ¡Registro exitoso! Has sido asignado a ${comisionSeleccionada}`, 'success');
-                        showToast(`¡Registro exitoso en ${comisionSeleccionada}!`);
+                        mostrarAlerta(`✅ ¡REGISTRO EXITOSO! Has sido asignado a ${comisionSeleccionada}. ¡Bienvenido!`, 'success');
+                        showToast(`✅ ¡Registro exitoso en ${comisionSeleccionada}!`);
                         resetForm();
                         await cargarConteosComisiones();
                     }
@@ -771,7 +873,10 @@
             
             nombreInput.addEventListener('input', validateNombre);
             apellidoInput.addEventListener('input', validateApellido);
-            dniInput.addEventListener('input', validateDNI);
+            dniInput.addEventListener('input', () => {
+                validateDNI();
+                verificarDNIEnTiempoReal();
+            });
             radioButtons.forEach(radio => {
                 radio.addEventListener('change', validateComision);
             });
