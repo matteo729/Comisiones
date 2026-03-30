@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -12,59 +12,118 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Fondo decorativo */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="20" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="85" r="4" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 950px;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .card {
-            background-color: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 32px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
         }
 
         h1 {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             margin-bottom: 8px;
-            color: #1a1a1a;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .subtitle {
-            color: #666;
+            color: #64748b;
             font-size: 14px;
-            margin-bottom: 28px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        /* Estado de inscripciones */
+        .status-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .status-banner.closed {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .status-icon {
+            font-size: 24px;
+        }
+
+        .status-text {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
 
         label {
             display: block;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .required {
@@ -74,17 +133,20 @@
         input[type="text"],
         input[type="number"] {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             font-size: 14px;
+            font-family: inherit;
             transition: all 0.2s;
             outline: none;
+            background: #f8fafc;
         }
 
         input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .radio-group {
@@ -96,29 +158,33 @@
         .radio-option {
             display: flex;
             align-items: flex-start;
-            padding: 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
             transition: all 0.2s;
+            cursor: pointer;
+            background: #f8fafc;
         }
 
-        .radio-option:hover {
-            background-color: #f9fafb;
-            border-color: #3b82f6;
+        .radio-option:hover:not(.disabled) {
+            border-color: #6366f1;
+            background: #fefce8;
+            transform: translateX(4px);
         }
 
         .radio-option.disabled {
-            background-color: #f3f4f6;
+            background: #f1f5f9;
             opacity: 0.6;
             cursor: not-allowed;
         }
 
         .radio-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            margin-right: 16px;
             margin-top: 2px;
             cursor: pointer;
+            accent-color: #6366f1;
         }
 
         .radio-option.disabled input[type="radio"] {
@@ -130,63 +196,72 @@
         }
 
         .radio-title {
-            font-weight: 500;
-            color: #1f2937;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
         }
 
         .comision-desc {
             font-size: 12px;
-            color: #6b7280;
-            margin-top: 4px;
+            color: #64748b;
         }
 
         .cupo-info {
             font-size: 11px;
-            margin-top: 4px;
-            font-weight: 500;
+            margin-top: 8px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 20px;
+            display: inline-block;
         }
 
         .cupo-disponible {
-            color: #22c55e;
+            background: #d1fae5;
+            color: #065f46;
         }
 
         .cupo-lleno {
-            color: #ef4444;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .cupo-casi-lleno {
-            color: #f59e0b;
+            background: #fed7aa;
+            color: #9b2c1d;
         }
 
         .btn-submit {
-            background-color: #22c55e;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
+            border-radius: 14px;
+            padding: 14px 28px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             width: 100%;
-            margin-top: 24px;
+            margin-top: 16px;
             transition: all 0.2s;
+            font-family: inherit;
         }
 
         .btn-submit:hover:not(:disabled) {
-            background-color: #16a34a;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
         }
 
         .btn-submit:disabled {
-            background-color: #9ca3af;
+            background: #94a3b8;
             cursor: not-allowed;
+            transform: none;
         }
 
         .error-message {
             color: #ef4444;
-            font-size: 12px;
-            margin-top: 4px;
+            font-size: 11px;
+            margin-top: 6px;
             display: none;
+            font-weight: 500;
         }
 
         .error-message.show {
@@ -195,27 +270,30 @@
 
         input.error {
             border-color: #ef4444;
+            background: #fef2f2;
         }
 
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #22c55e;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 24px;
+            border-radius: 16px;
             font-size: 14px;
+            font-weight: 500;
             animation: slideIn 0.3s ease;
             z-index: 1000;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
         }
 
         .toast.error {
-            background-color: #ef4444;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
 
         .toast.warning {
-            background-color: #f59e0b;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         }
 
         @keyframes slideIn {
@@ -230,36 +308,51 @@
         }
 
         .alert-banner {
-            background-color: #fef3c7;
+            background: #fef3c7;
             border-left: 4px solid #f59e0b;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+            font-size: 13px;
             color: #92400e;
+            font-weight: 500;
         }
 
         .alert-banner.error {
-            background-color: #fee2e2;
+            background: #fee2e2;
             border-left-color: #ef4444;
             color: #991b1b;
         }
 
         .alert-banner.success {
-            background-color: #d1fae5;
-            border-left-color: #22c55e;
+            background: #d1fae5;
+            border-left-color: #10b981;
             color: #065f46;
         }
 
-        /* Marca de agua dentro del formulario */
+        /* Marca de agua profesional */
         .form-watermark {
             text-align: center;
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
             font-size: 11px;
-            color: #9ca3af;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-weight: 500;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 24px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            h1 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
@@ -267,7 +360,13 @@
     <div class="container">
         <div class="card">
             <h1>Formulario de Distribución de Alumnos</h1>
-            <div class="subtitle">Complete los datos para asignar una comisión (Máximo 60 alumnos por comisión)</div>
+            <div class="subtitle">Complete los datos para asignar una comisión (Máximo 85 alumnos por comisión)</div>
+            
+            <div id="statusBanner" class="status-banner">
+                <span class="status-icon">✅</span>
+                <span class="status-text" id="statusText">Inscripciones abiertas</span>
+                <span class="status-badge" id="statusBadge">ACTIVO</span>
+            </div>
             
             <div id="alertMessage" style="display: none;" class="alert-banner"></div>
             
@@ -295,59 +394,68 @@
                 <div class="form-group">
                     <label>Comisión <span class="required">*</span></label>
                     <div class="radio-group" id="radioGroup">
-                        <div class="radio-option" data-comision="Comisión A">
-                            <input type="radio" id="comisionA" name="comision" value="Comisión A">
+                        <div class="radio-option" data-comision="Comisión 1">
+                            <input type="radio" id="comision1" name="comision" value="Comisión 1">
                             <div class="radio-content">
-                                <div class="radio-title">Comisión 1 - Carpintería: Viernes 12hs. Tejido: Jueves 17hs.</div>
-                                <div class="cupo-info" id="cupoA"></div>
+                                <div class="radio-title">Comisión 1</div>
+                                <div class="comision-desc">Carpintería: Viernes 12hs | Tejido: Jueves 17hs</div>
+                                <div class="cupo-info" id="cupo1"></div>
                             </div>
                         </div>
                         
-                        <div class="radio-option" data-comision="Comisión B">
-                            <input type="radio" id="comisionB" name="comision" value="Comisión B">
+                        <div class="radio-option" data-comision="Comisión 2">
+                            <input type="radio" id="comision2" name="comision" value="Comisión 2">
                             <div class="radio-content">
-                                <div class="radio-title">Comisión 2 - Carpintería: Viernes 14hs. Tejido: Miércoles 18hs.</div>
-                                <div class="cupo-info" id="cupoB"></div>
+                                <div class="radio-title">Comisión 2</div>
+                                <div class="comision-desc">Carpintería: Viernes 14hs | Tejido: Miércoles 18hs</div>
+                                <div class="cupo-info" id="cupo2"></div>
                             </div>
                         </div>
                         
-                        <div class="radio-option" data-comision="Comisión C">
-                            <input type="radio" id="comisionC" name="comision" value="Comisión C">
+                        <div class="radio-option" data-comision="Comisión 3">
+                            <input type="radio" id="comision3" name="comision" value="Comisión 3">
                             <div class="radio-content">
-                                <div class="radio-title">Comisión 3 - Carpintería: Miércoles 10hs. Tejido: Jueves 12hs.</div>
-                                <div class="cupo-info" id="cupoC"></div>
+                                <div class="radio-title">Comisión 3</div>
+                                <div class="comision-desc">Carpintería: Miércoles 10hs | Tejido: Jueves 12hs</div>
+                                <div class="cupo-info" id="cupo3"></div>
                             </div>
                         </div>
                     </div>
                     <div class="error-message" id="error-comision">Debe seleccionar una comisión</div>
                 </div>
                 
-                <button type="submit" class="btn-submit" id="submitBtn">Completar formulario.</button>
+                <button type="submit" class="btn-submit" id="submitBtn">Completar formulario</button>
                 
-                <!-- Marca de agua dentro del formulario -->
                 <div class="form-watermark">
                     Creado & Diseñado por Matteo
                 </div>
             </form>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // TUS CREDENCIALES
             const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            const LIMITE_POR_COMISION = 60;
+            const LIMITE_POR_COMISION = 85;
             
             if (typeof supabase === 'undefined') {
                 console.error('Supabase no se cargó correctamente');
-                alert('Error: No se pudo cargar Supabase. Verifica tu conexión a internet.');
+                alert('Error: No se pudo cargar Supabase.');
                 return;
             }
             
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('Supabase inicializado correctamente');
+            
+            let inscripcionesAbiertas = true;
+            let comisionesDisponibles = {
+                'Comisión 1': { total: 0, disponible: 0 },
+                'Comisión 2': { total: 0, disponible: 0 },
+                'Comisión 3': { total: 0, disponible: 0 }
+            };
+            let ipAddress = '';
             
             const form = document.getElementById('alumnoForm');
             const nombreInput = document.getElementById('nombre');
@@ -356,24 +464,49 @@
             const radioButtons = document.querySelectorAll('input[name="comision"]');
             const submitBtn = document.getElementById('submitBtn');
             const alertMessage = document.getElementById('alertMessage');
+            const statusBanner = document.getElementById('statusBanner');
+            const statusText = document.getElementById('statusText');
+            const statusBadge = document.getElementById('statusBadge');
             
-            let comisionesDisponibles = {
-                'Comisión A': { total: 0, disponible: 0 },
-                'Comisión B': { total: 0, disponible: 0 },
-                'Comisión C': { total: 0, disponible: 0 }
-            };
+            async function cargarEstadoInscripciones() {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('configuracion')
+                        .select('inscripciones_abiertas')
+                        .eq('id', 1)
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    inscripcionesAbiertas = data ? data.inscripciones_abiertas : true;
+                    actualizarUIEstado();
+                } catch (error) {
+                    console.error('Error al cargar estado:', error);
+                }
+            }
             
-            let ipAddress = '';
+            function actualizarUIEstado() {
+                if (inscripcionesAbiertas) {
+                    statusBanner.className = 'status-banner';
+                    statusText.textContent = 'Inscripciones abiertas';
+                    statusBadge.textContent = 'ACTIVO';
+                    statusBadge.style.background = 'rgba(255,255,255,0.2)';
+                    submitBtn.disabled = false;
+                } else {
+                    statusBanner.className = 'status-banner closed';
+                    statusText.textContent = 'Inscripciones cerradas';
+                    statusBadge.textContent = 'CERRADO';
+                    statusBadge.style.background = 'rgba(255,255,255,0.2)';
+                    submitBtn.disabled = true;
+                    mostrarAlerta('⚠️ Las inscripciones están temporalmente cerradas. Por favor, intente más tarde.', 'error');
+                }
+            }
             
-            // Función para obtener la IP del usuario
             async function obtenerIP() {
                 try {
                     const response = await fetch('https://api.ipify.org?format=json');
                     const data = await response.json();
                     ipAddress = data.ip;
-                    console.log('IP obtenida:', ipAddress);
-                    
-                    // Verificar si esta IP ya registró un alumno
                     await verificarIPRegistrada();
                 } catch (error) {
                     console.error('Error al obtener IP:', error);
@@ -381,10 +514,8 @@
                 }
             }
             
-            // Verificar si la IP ya tiene un registro
             async function verificarIPRegistrada() {
                 if (!ipAddress || ipAddress === 'desconocida') return;
-                
                 try {
                     const { data, error } = await supabaseClient
                         .from('alumnos')
@@ -404,7 +535,6 @@
                 }
             }
             
-            // Verificar si el DNI ya está registrado
             async function verificarDNIRegistrado(dni) {
                 try {
                     const { data, error } = await supabaseClient
@@ -416,7 +546,7 @@
                     if (error) throw error;
                     
                     if (data && data.length > 0) {
-                        mostrarAlerta('⚠️ Este DNI ya ha sido registrado anteriormente. No se permite duplicados.', 'error');
+                        mostrarAlerta('⚠️ Este DNI ya ha sido registrado anteriormente.', 'error');
                         return true;
                     }
                     return false;
@@ -426,7 +556,6 @@
                 }
             }
             
-            // Cargar conteos de comisiones
             async function cargarConteosComisiones() {
                 try {
                     const { data, error } = await supabaseClient
@@ -435,14 +564,12 @@
                     
                     if (error) throw error;
                     
-                    // Reiniciar conteos
                     comisionesDisponibles = {
-                        'Comisión A': { total: 0, disponible: LIMITE_POR_COMISION },
-                        'Comisión B': { total: 0, disponible: LIMITE_POR_COMISION },
-                        'Comisión C': { total: 0, disponible: LIMITE_POR_COMISION }
+                        'Comisión 1': { total: 0, disponible: LIMITE_POR_COMISION },
+                        'Comisión 2': { total: 0, disponible: LIMITE_POR_COMISION },
+                        'Comisión 3': { total: 0, disponible: LIMITE_POR_COMISION }
                     };
                     
-                    // Contar alumnos por comisión
                     data.forEach(alumno => {
                         if (comisionesDisponibles[alumno.comision]) {
                             comisionesDisponibles[alumno.comision].total++;
@@ -451,21 +578,19 @@
                     });
                     
                     actualizarUIComisiones();
-                    
                 } catch (error) {
                     console.error('Error al cargar conteos:', error);
                 }
             }
             
-            // Actualizar la interfaz con los cupos disponibles
             function actualizarUIComisiones() {
-                const cupoA = document.getElementById('cupoA');
-                const cupoB = document.getElementById('cupoB');
-                const cupoC = document.getElementById('cupoC');
+                const cupo1 = document.getElementById('cupo1');
+                const cupo2 = document.getElementById('cupo2');
+                const cupo3 = document.getElementById('cupo3');
                 
-                actualizarCupoUI('Comisión A', cupoA);
-                actualizarCupoUI('Comisión B', cupoB);
-                actualizarCupoUI('Comisión C', cupoC);
+                actualizarCupoUI('Comisión 1', cupo1);
+                actualizarCupoUI('Comisión 2', cupo2);
+                actualizarCupoUI('Comisión 3', cupo3);
             }
             
             function actualizarCupoUI(comision, elemento) {
@@ -475,15 +600,14 @@
                 if (disponible <= 0) {
                     elemento.innerHTML = `🔴 COMISIÓN COMPLETA (${total}/${LIMITE_POR_COMISION})`;
                     elemento.className = 'cupo-info cupo-lleno';
-                    // Deshabilitar el radio button de esta comisión
                     const radio = document.querySelector(`input[value="${comision}"]`);
                     const optionDiv = radio.closest('.radio-option');
                     if (radio) {
                         radio.disabled = true;
                         optionDiv.classList.add('disabled');
                     }
-                } else if (disponible <= 10) {
-                    elemento.innerHTML = `⚠️ ÚLTIMOS ${disponible} CUPOS DISPONIBLES (${total}/${LIMITE_POR_COMISION})`;
+                } else if (disponible <= 15) {
+                    elemento.innerHTML = `⚠️ ÚLTIMOS ${disponible} CUPOS (${total}/${LIMITE_POR_COMISION})`;
                     elemento.className = 'cupo-info cupo-casi-lleno';
                 } else {
                     elemento.innerHTML = `✅ ${disponible} cupos disponibles (${total}/${LIMITE_POR_COMISION})`;
@@ -495,7 +619,6 @@
                 alertMessage.textContent = mensaje;
                 alertMessage.className = `alert-banner ${tipo}`;
                 alertMessage.style.display = 'block';
-                
                 setTimeout(() => {
                     alertMessage.style.display = 'none';
                 }, 5000);
@@ -535,7 +658,7 @@
                     return false;
                 }
                 if (value.length < 2) {
-                    showError('nombre', 'error-nombre', 'El nombre debe tener al menos 2 caracteres');
+                    showError('nombre', 'error-nombre', 'Mínimo 2 caracteres');
                     return false;
                 }
                 hideError('nombre', 'error-nombre');
@@ -549,7 +672,7 @@
                     return false;
                 }
                 if (value.length < 2) {
-                    showError('apellido', 'error-apellido', 'El apellido debe tener al menos 2 caracteres');
+                    showError('apellido', 'error-apellido', 'Mínimo 2 caracteres');
                     return false;
                 }
                 hideError('apellido', 'error-apellido');
@@ -563,7 +686,7 @@
                     return false;
                 }
                 if (!/^\d{7,8}$/.test(dni)) {
-                    showError('dni', 'error-dni', 'El DNI debe tener 7 u 8 dígitos');
+                    showError('dni', 'error-dni', 'DNI debe tener 7 u 8 dígitos');
                     return false;
                 }
                 hideError('dni', 'error-dni');
@@ -586,7 +709,6 @@
                     return false;
                 }
                 
-                // Verificar si la comisión seleccionada tiene cupo
                 if (comisionesDisponibles[selectedValue] && comisionesDisponibles[selectedValue].disponible <= 0) {
                     errorDiv.textContent = 'Esta comisión no tiene cupos disponibles';
                     errorDiv.classList.add('show');
@@ -622,20 +744,22 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
+                if (!inscripcionesAbiertas) {
+                    showToast('Las inscripciones están cerradas', true);
+                    return;
+                }
+                
                 const isValid = validateNombre() && validateApellido() && validateDNI() && validateComision();
                 if (!isValid) return;
                 
                 const dni = dniInput.value.trim();
-                
-                // Verificar DNI duplicado
                 const dniExistente = await verificarDNIRegistrado(dni);
                 if (dniExistente) return;
                 
                 const comisionSeleccionada = getSelectedComision();
                 
-                // Verificar cupo disponible nuevamente (por si cambió)
                 if (comisionesDisponibles[comisionSeleccionada].disponible <= 0) {
-                    showToast('Lo sentimos, esta comisión ya no tiene cupos disponibles', true);
+                    showToast('Esta comisión ya no tiene cupos disponibles', true);
                     return;
                 }
                 
@@ -652,45 +776,35 @@
                 submitBtn.disabled = true;
                 
                 try {
-                    console.log('Intentando guardar:', alumnoData);
-                    
                     const { data, error } = await supabaseClient
                         .from('alumnos')
                         .insert([alumnoData])
                         .select();
                     
                     if (error) {
-                        console.error('Error de Supabase:', error);
                         if (error.code === '23505') {
                             showError('dni', 'error-dni', 'Este DNI ya está registrado');
                             showToast('DNI duplicado', true);
-                        } else if (error.code === '42P01') {
-                            showToast('Error: La tabla "alumnos" no existe. Ejecuta el script SQL primero.', true);
                         } else {
                             showToast('Error al guardar: ' + error.message, true);
                         }
                     } else {
-                        console.log('Guardado exitoso:', data);
                         mostrarAlerta(`✅ ¡Registro exitoso! Has sido asignado a ${comisionSeleccionada}`, 'success');
-                        showToast(`¡Alumno registrado correctamente en ${comisionSeleccionada}!`);
+                        showToast(`¡Registro exitoso en ${comisionSeleccionada}!`);
                         resetForm();
-                        
-                        // Recargar conteos después del registro
                         await cargarConteosComisiones();
                         
-                        // Deshabilitar formulario si la IP ya registró
                         if (ipAddress && ipAddress !== 'desconocida') {
                             submitBtn.disabled = true;
                             form.querySelectorAll('input').forEach(input => input.disabled = true);
-                            mostrarAlerta('Gracias por registrarte. Ya has completado el formulario.', 'success');
+                            mostrarAlerta('Gracias por registrarte.', 'success');
                         }
                     }
                 } catch (error) {
-                    console.error('Error de conexión:', error);
-                    showToast('Error de conexión: ' + error.message, true);
+                    showToast('Error de conexión', true);
                 } finally {
                     submitBtn.textContent = originalText;
-                    if (!submitBtn.disabled) {
+                    if (!submitBtn.disabled && inscripcionesAbiertas) {
                         submitBtn.disabled = false;
                     }
                 }
@@ -703,11 +817,10 @@
                 radio.addEventListener('change', validateComision);
             });
             
-            // Inicializar
             async function inicializar() {
+                await cargarEstadoInscripciones();
                 await cargarConteosComisiones();
                 await obtenerIP();
-                console.log('Formulario listo - Límite por comisión: ' + LIMITE_POR_COMISION);
             }
             
             inicializar();
