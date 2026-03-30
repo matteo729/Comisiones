@@ -12,108 +12,237 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-            background-color: #f0f2f5;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #f1f5f9;
+            padding: 24px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
-        .card {
-            background-color: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 32px;
-        }
-
-        .header {
+        /* Header con gradiente */
+        .header-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 20px;
         }
 
-        h1 {
-            font-size: 24px;
-            color: #1a1a1a;
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
-        .subtitle {
-            color: #666;
+        .header-title p {
             font-size: 14px;
-            margin-top: 4px;
+            opacity: 0.8;
         }
 
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Botones */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+        }
+
+        /* Tarjetas de estadísticas */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
             margin-bottom: 24px;
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
         }
 
-        .stat-card.green {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.1);
         }
 
-        .stat-card.blue {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
 
-        .stat-card.orange {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        .stat-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            font-size: 28px;
         }
 
         .stat-number {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 42px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 12px;
         }
 
         .progress-bar {
             width: 100%;
             height: 8px;
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 4px;
-            margin-top: 12px;
+            background: #e2e8f0;
+            border-radius: 10px;
             overflow: hidden;
+            margin-top: 12px;
         }
 
         .progress-fill {
             height: 100%;
-            background-color: white;
-            border-radius: 4px;
+            border-radius: 10px;
             transition: width 0.3s;
         }
 
-        .filters-section {
-            background-color: #f9fafb;
-            border-radius: 12px;
-            padding: 20px;
+        .progress-fill.comision1 { background: linear-gradient(90deg, #3b82f6, #1e40af); }
+        .progress-fill.comision2 { background: linear-gradient(90deg, #10b981, #047857); }
+        .progress-fill.comision3 { background: linear-gradient(90deg, #f59e0b, #b45309); }
+
+        .stat-footer {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* Panel de control */
+        .control-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
             margin-bottom: 24px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #e2e8f0;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-open {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-closed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Filtros */
+        .filters-section {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
         }
 
         .filters-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 16px;
         }
 
@@ -123,57 +252,38 @@
         }
 
         .filter-group label {
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 600;
             margin-bottom: 6px;
-            color: #374151;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .filter-group input,
         .filter-group select {
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #2563eb;
-        }
-
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-        }
-
-        .btn-purple {
-            background-color: #8b5cf6;
-            color: white;
-        }
-
-        .btn-purple:hover {
-            background-color: #7c3aed;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border: 1px solid #e5e7eb;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
             border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+        }
+
+        /* Tabla */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
         }
 
         table {
@@ -182,25 +292,31 @@
         }
 
         th {
-            background-color: #f9fafb;
-            padding: 16px;
+            background: #f8fafc;
+            padding: 16px 20px;
             text-align: left;
             font-weight: 600;
+            font-size: 13px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
             cursor: pointer;
-            border-bottom: 2px solid #e5e7eb;
         }
 
         th:hover {
-            background-color: #e5e7eb;
+            background: #f1f5f9;
         }
 
         td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f3f4f6;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #334155;
         }
 
         tr:hover {
-            background-color: #f9fafb;
+            background: #faf5ff;
         }
 
         .badge {
@@ -208,40 +324,32 @@
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        .badge-a {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge-b {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-
-        .badge-c {
-            background-color: #fed7aa;
-            color: #9b2c1d;
-        }
+        .badge-1 { background: #dbeafe; color: #1e40af; }
+        .badge-2 { background: #d1fae5; color: #065f46; }
+        .badge-3 { background: #fed7aa; color: #9b2c1d; }
 
         .delete-btn {
             color: #ef4444;
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 8px;
             display: inline-block;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
         .delete-btn:hover {
-            background-color: #fee2e2;
+            background: #fee2e2;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #6b7280;
+            padding: 60px;
+            color: #94a3b8;
         }
 
         .modal {
@@ -255,6 +363,7 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
         .modal.show {
@@ -263,34 +372,43 @@
 
         .modal-content {
             background: white;
-            padding: 24px;
-            border-radius: 12px;
+            padding: 32px;
+            border-radius: 24px;
             text-align: center;
             max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #1e293b;
         }
 
         .modal-buttons {
             display: flex;
             gap: 12px;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #22c55e;
+            bottom: 30px;
+            right: 30px;
+            background: #1e293b;
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
             animation: slideIn 0.3s ease;
             z-index: 1000;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
         }
 
-        .toast.error {
-            background-color: #ef4444;
-        }
+        .toast.error { background: #ef4444; }
+        .toast.success { background: #10b981; }
 
         @keyframes slideIn {
             from {
@@ -303,80 +421,98 @@
             }
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .header-card { flex-direction: column; text-align: center; }
+            .stat-number { font-size: 32px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <div class="header">
+        <!-- Header con gradiente -->
+        <div class="header-card">
+            <div class="header-title">
+                <h1>📋 Panel de Administración</h1>
+                <p>Gestión de alumnos | Límite: 85 alumnos por comisión</p>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
+                <button class="btn btn-success" id="exportPdfBtn">📄 Exportar a PDF</button>
+                <button class="btn btn-outline" id="refreshBtn">🔄 Actualizar</button>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <!-- Panel de Control - Cancelar Inscripciones -->
+        <div class="control-panel">
+            <div class="panel-title">
+                ⚙️ Control de Inscripciones
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
                 <div>
-                    <h1>📋 Panel de Alumnos Registrados</h1>
-                    <div class="subtitle">Gestión completa de alumnos - Límite: 60 alumnos por comisión</div>
+                    <div style="margin-bottom: 8px; font-weight: 500; color: #334155;">Estado actual:</div>
+                    <div id="statusIndicator" class="status-indicator status-open">✅ Inscripciones abiertas</div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
-                    <button class="btn btn-purple" id="exportPdfBtn">📄 Exportar a PDF</button>
-                    <button class="btn btn-danger" id="refreshBtn">🔄 Actualizar</button>
+                <div>
+                    <button class="btn btn-warning" id="toggleInscripcionesBtn">🔒 Cancelar Inscripciones</button>
                 </div>
             </div>
+        </div>
 
-            <div class="stats-grid" id="statsGrid"></div>
-
-            <div class="filters-section">
-                <div class="filters-grid">
-                    <div class="filter-group">
-                        <label>🔍 Buscar por nombre o apellido</label>
-                        <input type="text" id="searchInput" placeholder="Escriba para buscar...">
-                    </div>
-                    <div class="filter-group">
-                        <label>📌 Filtrar por comisión</label>
-                        <select id="comisionFilter">
-                            <option value="">Todas</option>
-                            <option value="Comisión A">Comisión A</option>
-                            <option value="Comisión B">Comisión B</option>
-                            <option value="Comisión C">Comisión C</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>🔢 Buscar por DNI</label>
-                        <input type="text" id="dniFilter" placeholder="DNI">
-                    </div>
-                    <div class="filter-group">
-                        <label>🌐 Buscar por IP</label>
-                        <input type="text" id="ipFilter" placeholder="IP Address">
-                    </div>
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>🔍 Buscar por nombre o apellido</label>
+                    <input type="text" id="searchInput" placeholder="Escriba para buscar...">
                 </div>
-                <div style="margin-top: 16px; display: flex; gap: 10px;">
-                    <button class="btn btn-primary" id="applyFiltersBtn">Aplicar Filtros</button>
-                    <button class="btn" id="clearFiltersBtn" style="background: #e5e7eb;">Limpiar</button>
+                <div class="filter-group">
+                    <label>📌 Filtrar por comisión</label>
+                    <select id="comisionFilter">
+                        <option value="">Todas</option>
+                        <option value="Comisión 1">Comisión 1</option>
+                        <option value="Comisión 2">Comisión 2</option>
+                        <option value="Comisión 3">Comisión 3</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>🔢 Buscar por DNI</label>
+                    <input type="text" id="dniFilter" placeholder="DNI">
+                </div>
+                <div class="filter-group">
+                    <label>🌐 Buscar por IP</label>
+                    <input type="text" id="ipFilter" placeholder="IP Address">
                 </div>
             </div>
+            <div style="margin-top: 20px; display: flex; gap: 12px;">
+                <button class="btn btn-primary" id="applyFiltersBtn">Aplicar Filtros</button>
+                <button class="btn" id="clearFiltersBtn" style="background: #e2e8f0; color: #475569;">Limpiar</button>
+            </div>
+        </div>
 
-            <div class="table-container">
-                <div id="loadingState" class="loading">
-                    <div>Cargando alumnos...</div>
-                </div>
-                <div id="tableContent" style="display: none;">
-                    <table id="alumnosTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('nombre')">Nombre ⬍</th>
-                                <th onclick="sortTable('apellido')">Apellido ⬍</th>
-                                <th onclick="sortTable('dni')">DNI ⬍</th>
-                                <th onclick="sortTable('comision')">Comisión ⬍</th>
-                                <th onclick="sortTable('ip_address')">IP Address ⬍</th>
-                                <th onclick="sortTable('fecha_registro')">Fecha Registro ⬍</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                </div>
+        <!-- Tabla -->
+        <div class="table-container">
+            <div id="loadingState" class="loading">
+                <div>Cargando alumnos...</div>
+            </div>
+            <div id="tableContent" style="display: none;">
+                <table id="alumnosTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('nombre')">Nombre ⬍</th>
+                            <th onclick="sortTable('apellido')">Apellido ⬍</th>
+                            <th onclick="sortTable('dni')">DNI ⬍</th>
+                            <th onclick="sortTable('comision')">Comisión ⬍</th>
+                            <th onclick="sortTable('ip_address')">IP Address ⬍</th>
+                            <th onclick="sortTable('fecha_registro')">Fecha Registro ⬍</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -387,12 +523,22 @@
             <p id="deleteMessage">¿Está seguro?</p>
             <div class="modal-buttons">
                 <button class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
-                <button class="btn" id="cancelDeleteBtn">Cancelar</button>
+                <button class="btn" id="cancelDeleteBtn" style="background: #e2e8f0;">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Librerías -->
+    <div id="toggleModal" class="modal">
+        <div class="modal-content">
+            <h3 id="toggleModalTitle">⚠️ Confirmar acción</h3>
+            <p id="toggleModalMessage">¿Está seguro de que desea cancelar las inscripciones?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-warning" id="confirmToggleBtn">Confirmar</button>
+                <button class="btn" id="cancelToggleBtn" style="background: #e2e8f0;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -401,26 +547,19 @@
             const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            const LIMITE_POR_COMISION = 60;
-            
-            if (typeof supabase === 'undefined') {
-                console.error('Supabase no se cargó correctamente');
-                alert('Error: No se pudo cargar Supabase.');
-                return;
-            }
+            const LIMITE_POR_COMISION = 85;
             
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('Supabase inicializado correctamente');
             
             let allAlumnos = [];
             let filteredAlumnos = [];
             let currentSort = { column: 'fecha_registro', direction: 'desc' };
             let alumnoToDelete = null;
-            let subscription = null;
+            let inscripcionesAbiertas = true;
             
             function showToast(message, isError = false) {
                 const toast = document.createElement('div');
-                toast.className = 'toast' + (isError ? ' error' : '');
+                toast.className = 'toast' + (isError ? ' error' : ' success');
                 toast.textContent = message;
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 3000);
@@ -433,46 +572,116 @@
             }
             
             function getBadge(comision) {
-                const classes = {
-                    'Comisión A': 'badge-a',
-                    'Comisión B': 'badge-b',
-                    'Comisión C': 'badge-c'
-                };
-                return `<span class="badge ${classes[comision]}">${comision}</span>`;
+                if (comision === 'Comisión 1') return '<span class="badge badge-1">Comisión 1</span>';
+                if (comision === 'Comisión 2') return '<span class="badge badge-2">Comisión 2</span>';
+                return '<span class="badge badge-3">Comisión 3</span>';
+            }
+            
+            async function cargarEstadoInscripciones() {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('configuracion')
+                        .select('inscripciones_abiertas')
+                        .eq('id', 1)
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    inscripcionesAbiertas = data ? data.inscripciones_abiertas : true;
+                    actualizarUIEstado();
+                } catch (error) {
+                    console.error('Error al cargar estado:', error);
+                }
+            }
+            
+            function actualizarUIEstado() {
+                const statusIndicator = document.getElementById('statusIndicator');
+                const toggleBtn = document.getElementById('toggleInscripcionesBtn');
+                
+                if (inscripcionesAbiertas) {
+                    statusIndicator.className = 'status-indicator status-open';
+                    statusIndicator.innerHTML = '✅ Inscripciones abiertas';
+                    toggleBtn.innerHTML = '🔒 Cancelar Inscripciones';
+                    toggleBtn.className = 'btn btn-warning';
+                } else {
+                    statusIndicator.className = 'status-indicator status-closed';
+                    statusIndicator.innerHTML = '🔴 Inscripciones cerradas';
+                    toggleBtn.innerHTML = '🔓 Reabrir Inscripciones';
+                    toggleBtn.className = 'btn btn-success';
+                }
+            }
+            
+            async function toggleInscripciones() {
+                const nuevaEstado = !inscripcionesAbiertas;
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('configuracion')
+                        .update({ inscripciones_abiertas: nuevaEstado, fecha_actualizacion: new Date() })
+                        .eq('id', 1);
+                    
+                    if (error) throw error;
+                    
+                    inscripcionesAbiertas = nuevaEstado;
+                    actualizarUIEstado();
+                    showToast(nuevaEstado ? '✅ Inscripciones reabiertas exitosamente' : '🔒 Inscripciones canceladas exitosamente');
+                } catch (error) {
+                    console.error('Error al cambiar estado:', error);
+                    showToast('Error al cambiar el estado de inscripciones', true);
+                }
             }
             
             function updateStats() {
                 const statsGrid = document.getElementById('statsGrid');
-                const comisiones = ['Comisión A', 'Comisión B', 'Comisión C'];
-                const colores = ['', 'green', 'blue', 'orange'];
                 
-                statsGrid.innerHTML = comisiones.map((comision, index) => {
-                    const total = allAlumnos.filter(a => a.comision === comision).length;
-                    const porcentaje = (total / LIMITE_POR_COMISION) * 100;
-                    let colorClass = colores[index + 1];
-                    
-                    return `
-                        <div class="stat-card ${colorClass}">
-                            <div class="stat-number">${total}/${LIMITE_POR_COMISION}</div>
-                            <div class="stat-label">${comision}</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${porcentaje}%"></div>
-                            </div>
+                const comision1Total = allAlumnos.filter(a => a.comision === 'Comisión 1').length;
+                const comision2Total = allAlumnos.filter(a => a.comision === 'Comisión 2').length;
+                const comision3Total = allAlumnos.filter(a => a.comision === 'Comisión 3').length;
+                
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Comisión 1</span>
+                            <span class="stat-icon">🪑</span>
                         </div>
-                    `;
-                }).join('');
-                
-                const totalGeneral = allAlumnos.length;
-                const totalLimit = LIMITE_POR_COMISION * 3;
-                const porcentajeGeneral = (totalGeneral / totalLimit) * 100;
-                
-                statsGrid.innerHTML += `
-                    <div class="stat-card" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
-                        <div class="stat-number">${totalGeneral}/${totalLimit}</div>
-                        <div class="stat-label">Total General</div>
+                        <div class="stat-number">${comision1Total}/${LIMITE_POR_COMISION}</div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${porcentajeGeneral}%"></div>
+                            <div class="progress-fill comision1" style="width: ${(comision1Total / LIMITE_POR_COMISION) * 100}%"></div>
                         </div>
+                        <div class="stat-footer">${LIMITE_POR_COMISION - comision1Total} cupos disponibles</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Comisión 2</span>
+                            <span class="stat-icon">🪑</span>
+                        </div>
+                        <div class="stat-number">${comision2Total}/${LIMITE_POR_COMISION}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill comision2" style="width: ${(comision2Total / LIMITE_POR_COMISION) * 100}%"></div>
+                        </div>
+                        <div class="stat-footer">${LIMITE_POR_COMISION - comision2Total} cupos disponibles</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Comisión 3</span>
+                            <span class="stat-icon">🪑</span>
+                        </div>
+                        <div class="stat-number">${comision3Total}/${LIMITE_POR_COMISION}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill comision3" style="width: ${(comision3Total / LIMITE_POR_COMISION) * 100}%"></div>
+                        </div>
+                        <div class="stat-footer">${LIMITE_POR_COMISION - comision3Total} cupos disponibles</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Total General</span>
+                            <span class="stat-icon">📊</span>
+                        </div>
+                        <div class="stat-number">${allAlumnos.length}/${LIMITE_POR_COMISION * 3}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(allAlumnos.length / (LIMITE_POR_COMISION * 3)) * 100}%; background: linear-gradient(90deg, #8b5cf6, #6d28d9);"></div>
+                        </div>
+                        <div class="stat-footer">${(LIMITE_POR_COMISION * 3) - allAlumnos.length} cupos totales disponibles</div>
                     </div>
                 `;
             }
@@ -481,7 +690,7 @@
                 const tbody = document.getElementById('tableBody');
                 
                 if (filteredAlumnos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px;">📭 No hay alumnos registrados</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:60px;">📭 No hay alumnos registrados</td></tr>';
                     return;
                 }
                 
@@ -506,9 +715,9 @@
                         <td>${escapeHtml(alumno.apellido)}</td>
                         <td>${escapeHtml(alumno.dni)}</td>
                         <td>${getBadge(alumno.comision)}</td>
-                        <td><code style="font-size: 12px;">${escapeHtml(alumno.ip_address || 'N/A')}</code></td>
+                        <td><code>${escapeHtml(alumno.ip_address || 'N/A')}</code></td>
                         <td>${formatDate(alumno.fecha_registro)}</td>
-                        <td><span class="delete-btn" onclick="window.deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️ Eliminar</span></td>
+                        <td><span class="delete-btn" onclick="deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️ Eliminar</span></td>
                     </tr>
                 `).join('');
             }
@@ -568,21 +777,13 @@
             
             async function confirmDelete() {
                 if (!alumnoToDelete) return;
-                
                 try {
-                    const { error } = await supabaseClient
-                        .from('alumnos')
-                        .delete()
-                        .eq('id', alumnoToDelete);
-                    
-                    if (error) {
-                        showToast('Error al eliminar: ' + error.message, true);
-                    } else {
-                        showToast('Alumno eliminado correctamente');
-                        await loadAlumnos();
-                    }
+                    const { error } = await supabaseClient.from('alumnos').delete().eq('id', alumnoToDelete);
+                    if (error) throw error;
+                    showToast('Alumno eliminado correctamente');
+                    await loadAlumnos();
                 } catch (error) {
-                    showToast('Error: ' + error.message, true);
+                    showToast('Error al eliminar', true);
                 }
                 closeModal();
             }
@@ -600,20 +801,9 @@
                 tableContent.style.display = 'none';
                 
                 try {
-                    console.log('Cargando alumnos...');
-                    const { data, error } = await supabaseClient
-                        .from('alumnos')
-                        .select('*')
-                        .order('fecha_registro', { ascending: false });
+                    const { data, error } = await supabaseClient.from('alumnos').select('*').order('fecha_registro', { ascending: false });
+                    if (error) throw error;
                     
-                    if (error) {
-                        console.error('Error de Supabase:', error);
-                        loadingState.innerHTML = '<div>❌ Error al cargar datos: ' + error.message + '</div>';
-                        showToast('Error al cargar datos: ' + error.message, true);
-                        return;
-                    }
-                    
-                    console.log('Datos cargados:', data);
                     allAlumnos = data || [];
                     filteredAlumnos = [...allAlumnos];
                     updateStats();
@@ -621,49 +811,12 @@
                     
                     loadingState.style.display = 'none';
                     tableContent.style.display = 'block';
-                    
-                    if (allAlumnos.length === 0) {
-                        showToast('No hay alumnos registrados aún');
-                    } else {
-                        showToast(`${allAlumnos.length} alumnos cargados`);
-                    }
                 } catch (error) {
-                    console.error('Error de conexión:', error);
-                    loadingState.innerHTML = '<div>❌ Error de conexión. Verifica tu internet.</div>';
-                    showToast('Error de conexión: ' + error.message, true);
+                    loadingState.innerHTML = '<div>❌ Error al cargar datos</div>';
+                    showToast('Error al cargar datos', true);
                 }
             }
             
-            // Suscripción en tiempo real
-            function setupRealtimeSubscription() {
-                if (subscription) {
-                    subscription.unsubscribe();
-                }
-                
-                subscription = supabaseClient
-                    .channel('alumnos-realtime')
-                    .on('postgres_changes', 
-                        { event: 'INSERT', schema: 'public', table: 'alumnos' },
-                        (payload) => {
-                            console.log('🆕 Nuevo alumno agregado:', payload.new);
-                            showToast(`🆕 Nuevo alumno registrado: ${payload.new.nombre} ${payload.new.apellido}`);
-                            loadAlumnos();
-                        }
-                    )
-                    .on('postgres_changes', 
-                        { event: 'DELETE', schema: 'public', table: 'alumnos' },
-                        (payload) => {
-                            console.log('🗑️ Alumno eliminado:', payload.old);
-                            showToast('🗑️ Se ha eliminado un alumno');
-                            loadAlumnos();
-                        }
-                    )
-                    .subscribe((status) => {
-                        console.log('📡 Estado de suscripción:', status);
-                    });
-            }
-            
-            // EXPORTAR A PDF - CON COMISIONES SEPARADAS Y SIN CORTAR NOMBRES
             function exportToPDF() {
                 if (filteredAlumnos.length === 0) {
                     showToast('No hay datos para exportar', true);
@@ -675,152 +828,51 @@
                 const pdfContent = document.createElement('div');
                 pdfContent.style.padding = '30px';
                 pdfContent.style.fontFamily = 'Arial, sans-serif';
-                pdfContent.style.backgroundColor = 'white';
-                pdfContent.style.color = '#000000';
                 
-                // Separar alumnos por comisión
-                const comisionA = filteredAlumnos.filter(a => a.comision === 'Comisión A');
-                const comisionB = filteredAlumnos.filter(a => a.comision === 'Comisión B');
-                const comisionC = filteredAlumnos.filter(a => a.comision === 'Comisión C');
+                const comision1 = filteredAlumnos.filter(a => a.comision === 'Comisión 1');
+                const comision2 = filteredAlumnos.filter(a => a.comision === 'Comisión 2');
+                const comision3 = filteredAlumnos.filter(a => a.comision === 'Comisión 3');
                 
-                // Ordenar cada comisión alfabéticamente por apellido
-                const ordenarPorApellido = (a, b) => {
-                    const apellidoA = a.apellido.toLowerCase();
-                    const apellidoB = b.apellido.toLowerCase();
-                    if (apellidoA < apellidoB) return -1;
-                    if (apellidoA > apellidoB) return 1;
-                    return 0;
-                };
+                const ordenar = (a, b) => a.apellido.localeCompare(b.apellido);
+                comision1.sort(ordenar);
+                comision2.sort(ordenar);
+                comision3.sort(ordenar);
                 
-                comisionA.sort(ordenarPorApellido);
-                comisionB.sort(ordenarPorApellido);
-                comisionC.sort(ordenarPorApellido);
-                
-                // Función para crear tabla de una comisión con manejo de saltos de página
-                function crearTablaComision(nombreComision, alumnos, color) {
-                    if (alumnos.length === 0) {
-                        return `
-                            <div style="margin-top: 30px; page-break-inside: avoid;">
-                                <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
-                                    ${nombreComision} (0 alumnos)
-                                </h3>
-                                <p style="color: #6b7280; padding: 20px; text-align: center; background-color: #f9fafb; border-radius: 8px;">
-                                    No hay alumnos registrados en esta comisión
-                                </p>
-                            </div>
-                        `;
-                    }
+                function crearTabla(numero, alumnos, color) {
+                    if (alumnos.length === 0) return `<div style="margin-top:30px"><h3 style="color:${color}">Comisión ${numero} (0 alumnos)</h3><p>No hay alumnos</p></div>`;
                     
-                    // Dividir en grupos de 20 filas para evitar que se corte una fila al cambiar de página
                     const grupos = [];
-                    for (let i = 0; i < alumnos.length; i += 20) {
-                        grupos.push(alumnos.slice(i, i + 20));
-                    }
+                    for (let i = 0; i < alumnos.length; i += 25) grupos.push(alumnos.slice(i, i + 25));
                     
-                    let tablasHTML = '';
-                    
-                    grupos.forEach((grupo, grupoIndex) => {
-                        const esPrimerGrupo = grupoIndex === 0;
-                        
-                        tablasHTML += `
-                            <div style="margin-top: ${esPrimerGrupo ? '30px' : '40px'}; page-break-before: ${grupoIndex > 0 ? 'avoid' : 'auto'}; page-break-inside: avoid;">
-                                ${esPrimerGrupo ? `
-                                    <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
-                                        ${nombreComision} (${alumnos.length} alumnos)
-                                    </h3>
-                                ` : `
-                                    <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
-                                        ${nombreComision} (continuación)
-                                    </h3>
-                                `}
-                                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                                    <thead>
-                                        <tr style="background-color: ${color}; color: black;">
-                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 8%;">N°</th>
-                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Apellido</th>
-                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Nombre</th>
-                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 15%;">DNI</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${grupo.map((alumno, idx) => {
-                                            const numeroGlobal = grupoIndex * 20 + idx + 1;
-                                            return `
-                                            <tr style="page-break-inside: avoid;">
-                                                <td style="padding: 10px; border: 1px solid #ddd;">${numeroGlobal}</td>
-                                                <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word; white-space: normal;">${escapeHtml(alumno.apellido)}</td>
-                                                <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word; white-space: normal;">${escapeHtml(alumno.nombre)}</td>
-                                                <td style="padding: 10px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
-                                            </tr>
-                                        `}).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
-                    });
-                    
-                    return tablasHTML;
+                    return grupos.map((grupo, idx) => `
+                        <div style="margin-top:30px; page-break-inside:avoid;">
+                            <h3 style="color:${color}; border-bottom:2px solid ${color}; padding-bottom:8px;">Comisión ${numero} ${idx === 0 ? `(${alumnos.length} alumnos)` : '(continuación)'}</h3>
+                            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                                <thead><tr style="background:${color}; color:white;"><th style="padding:10px; border:1px solid #ddd;">N°</th><th style="padding:10px; border:1px solid #ddd;">Apellido</th><th style="padding:10px; border:1px solid #ddd;">Nombre</th><th style="padding:10px; border:1px solid #ddd;">DNI</th></tr></thead>
+                                <tbody>${grupo.map((a, i) => `<tr><td style="padding:8px; border:1px solid #ddd;">${idx * 25 + i + 1}</td><td style="padding:8px; border:1px solid #ddd;">${a.apellido}</td><td style="padding:8px; border:1px solid #ddd;">${a.nombre}</td><td style="padding:8px; border:1px solid #ddd;">${a.dni}</td></tr>`).join('')}</tbody>
+                            </table>
+                        </div>
+                    `).join('');
                 }
                 
                 pdfContent.innerHTML = `
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #1e40af; font-size: 28px; margin-bottom: 10px;">📋 Listado de Alumnos por Comisión</h1>
-                        <p style="color: #6b7280; font-size: 12px;">
-                            Fecha de generación: ${new Date().toLocaleString('es-AR')}<br>
-                            Total de alumnos: ${filteredAlumnos.length} | Límite por comisión: ${LIMITE_POR_COMISION} alumnos
-                        </p>
+                    <div style="text-align:center; margin-bottom:30px;">
+                        <h1>📋 Listado de Alumnos por Comisión</h1>
+                        <p>Fecha: ${new Date().toLocaleString('es-AR')}<br>Total: ${filteredAlumnos.length} alumnos | Límite: 85 por comisión</p>
                     </div>
-                    
-                    <div style="margin-bottom: 30px; background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
-                        <h3 style="color: #374151; margin-bottom: 15px;">📊 Resumen General</h3>
-                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                            <div style="flex: 1; text-align: center; background-color: #3b82f6; padding: 15px; border-radius: 8px; color: white;">
-                                <div style="font-size: 24px; font-weight: bold;">${comisionA.length}</div>
-                                <div>Comisión 1</div>
-                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
-                            </div>
-                            <div style="flex: 1; text-align: center; background-color: #22c55e; padding: 15px; border-radius: 8px; color: white;">
-                                <div style="font-size: 24px; font-weight: bold;">${comisionB.length}</div>
-                                <div>Comisión 2</div>
-                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
-                            </div>
-                            <div style="flex: 1; text-align: center; background-color: #f59e0b; padding: 15px; border-radius: 8px; color: white;">
-                                <div style="font-size: 24px; font-weight: bold;">${comisionC.length}</div>
-                                <div>Comisión 3</div>
-                                <div style="font-size: 12px; margin-top: 5px;">Cupo: ${LIMITE_POR_COMISION}</div>
-                            </div>
-                        </div>
+                    <div style="display:flex; gap:20px; margin-bottom:30px; justify-content:center;">
+                        <div style="background:#3b82f6; color:white; padding:15px; border-radius:12px; text-align:center; flex:1"><div style="font-size:28px; font-weight:bold">${comision1.length}</div><div>Comisión 1</div></div>
+                        <div style="background:#10b981; color:white; padding:15px; border-radius:12px; text-align:center; flex:1"><div style="font-size:28px; font-weight:bold">${comision2.length}</div><div>Comisión 2</div></div>
+                        <div style="background:#f59e0b; color:white; padding:15px; border-radius:12px; text-align:center; flex:1"><div style="font-size:28px; font-weight:bold">${comision3.length}</div><div>Comisión 3</div></div>
                     </div>
-                    
-                    ${crearTablaComision('Comisión 1', comisionA, '#3b82f6')}
-                    ${crearTablaComision('Comisión 2', comisionB, '#22c55e')}
-                    ${crearTablaComision('Comisión 3', comisionC, '#f59e0b')}
-                    
-                    <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 20px;">
-                        <p>Documento generado automáticamente - Sistema de Distribución de Alumnos</p>
-                        <p>Total de alumnos: ${filteredAlumnos.length} | Límite por comisión: ${LIMITE_POR_COMISION}</p>
-                    </div>
+                    ${crearTabla(1, comision1, '#3b82f6')}
+                    ${crearTabla(2, comision2, '#10b981')}
+                    ${crearTabla(3, comision3, '#f59e0b')}
                 `;
                 
-                const opt = {
-                    margin: [0.5, 0.5, 0.5, 0.5],
-                    filename: `reporte_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, letterRendering: true },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-                
-                html2pdf().set(opt).from(pdfContent).save()
-                    .then(() => {
-                        showToast('PDF generado correctamente');
-                    })
-                    .catch((error) => {
-                        console.error('Error al generar PDF:', error);
-                        showToast('Error al generar el PDF', true);
-                    });
+                html2pdf().set({ margin: 0.5, filename: `alumnos_${new Date().toISOString().split('T')[0]}.pdf`, html2canvas: { scale: 2 } }).from(pdfContent).save();
             }
             
-            // Event listeners
             document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
@@ -828,9 +880,33 @@
             document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
             document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
             
-            // Iniciar
+            const toggleModal = document.getElementById('toggleModal');
+            const toggleBtn = document.getElementById('toggleInscripcionesBtn');
+            const confirmToggleBtn = document.getElementById('confirmToggleBtn');
+            const cancelToggleBtn = document.getElementById('cancelToggleBtn');
+            
+            toggleBtn.addEventListener('click', () => {
+                const title = document.getElementById('toggleModalTitle');
+                const message = document.getElementById('toggleModalMessage');
+                if (inscripcionesAbiertas) {
+                    title.textContent = '🔒 Cancelar Inscripciones';
+                    message.textContent = '¿Está seguro de que desea cancelar las inscripciones? Los alumnos no podrán registrarse hasta que se reabran.';
+                } else {
+                    title.textContent = '🔓 Reabrir Inscripciones';
+                    message.textContent = '¿Está seguro de que desea reabrir las inscripciones? Los alumnos podrán registrarse nuevamente.';
+                }
+                toggleModal.classList.add('show');
+            });
+            
+            confirmToggleBtn.addEventListener('click', async () => {
+                await toggleInscripciones();
+                toggleModal.classList.remove('show');
+            });
+            
+            cancelToggleBtn.addEventListener('click', () => toggleModal.classList.remove('show'));
+            
             loadAlumnos();
-            setupRealtimeSubscription();
+            cargarEstadoInscripciones();
         });
     </script>
 </body>
