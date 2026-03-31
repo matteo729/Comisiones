@@ -22,7 +22,6 @@
             margin: 0 auto;
         }
 
-        /* Header con gradiente */
         .header-card {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-radius: 24px;
@@ -53,7 +52,6 @@
             flex-wrap: wrap;
         }
 
-        /* Botones */
         .btn {
             padding: 10px 20px;
             border-radius: 12px;
@@ -129,7 +127,6 @@
             border-color: white;
         }
 
-        /* Tarjetas de estadísticas */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -203,7 +200,6 @@
             color: #64748b;
         }
 
-        /* Panel de control */
         .control-panel {
             background: white;
             border-radius: 20px;
@@ -249,7 +245,6 @@
             color: #991b1b;
         }
 
-        /* Filtros */
         .filters-section {
             background: white;
             border-radius: 20px;
@@ -296,11 +291,10 @@
             background: white;
         }
 
-        /* Tabla */
         .table-container {
             background: white;
             border-radius: 20px;
-            overflow: hidden;
+            overflow-x: auto;
             border: 1px solid #e2e8f0;
         }
 
@@ -449,7 +443,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header con gradiente -->
         <div class="header-card">
             <div class="header-title">
                 <h1>📋 Panel de Administración</h1>
@@ -461,28 +454,25 @@
             </div>
         </div>
 
-        <!-- Estadísticas -->
         <div class="stats-grid" id="statsGrid"></div>
 
-        <!-- Panel de Exportación por Comisión -->
         <div class="control-panel">
             <div class="panel-title">
                 📄 Exportar por Comisión
             </div>
             <div class="export-buttons">
                 <button class="btn btn-comision1" id="exportComision1Btn">
-                    🪑 Comisión 1 - Exportar PDF
+                    🪑 Comisión 1 - Exportar PDF (74 alumnos)
                 </button>
                 <button class="btn btn-comision2" id="exportComision2Btn">
-                    🪑 Comisión 2 - Exportar PDF
+                    🪑 Comisión 2 - Exportar PDF (77 alumnos)
                 </button>
                 <button class="btn btn-comision3" id="exportComision3Btn">
-                    🪑 Comisión 3 - Exportar PDF
+                    🪑 Comisión 3 - Exportar PDF (75 alumnos)
                 </button>
             </div>
         </div>
 
-        <!-- Panel de Control - Cancelar Inscripciones -->
         <div class="control-panel">
             <div class="panel-title">
                 ⚙️ Control de Inscripciones
@@ -498,7 +488,6 @@
             </div>
         </div>
 
-        <!-- Filtros -->
         <div class="filters-section">
             <div class="filters-grid">
                 <div class="filter-group">
@@ -525,7 +514,6 @@
             </div>
         </div>
 
-        <!-- Tabla -->
         <div class="table-container">
             <div id="loadingState" class="loading">
                 <div>Cargando alumnos...</div>
@@ -578,7 +566,6 @@
             const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            // LÍMITES DIFERENTES POR COMISIÓN
             const LIMITES_COMISION = {
                 'Comisión 1': 74,
                 'Comisión 2': 77,
@@ -604,13 +591,20 @@
             function formatDate(dateString) {
                 if (!dateString) return 'N/A';
                 const date = new Date(dateString);
-                return date.toLocaleString('es-AR');
+                return date.toLocaleDateString('es-AR') + ' ' + date.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'});
             }
             
             function getBadge(comision) {
                 if (comision === 'Comisión 1') return '<span class="badge badge-1">Comisión 1</span>';
                 if (comision === 'Comisión 2') return '<span class="badge badge-2">Comisión 2</span>';
                 return '<span class="badge badge-3">Comisión 3</span>';
+            }
+            
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
             }
             
             async function cargarEstadoInscripciones() {
@@ -722,7 +716,7 @@
                 `;
             }
             
-            // Función para exportar PDF de una comisión específica
+            // Función para exportar PDF de una comisión específica (TODOS los alumnos)
             function exportarComisionEspecifica(comision) {
                 const alumnosComision = allAlumnos.filter(a => a.comision === comision);
                 
@@ -731,19 +725,21 @@
                     return;
                 }
                 
-                showToast(`Generando PDF de ${comision}...`);
+                showToast(`Generando PDF de ${comision} (${alumnosComision.length} alumnos)...`);
                 
                 const pdfContent = document.createElement('div');
-                pdfContent.style.padding = '30px';
+                pdfContent.style.padding = '40px 30px';
                 pdfContent.style.fontFamily = 'Arial, sans-serif';
                 pdfContent.style.backgroundColor = 'white';
+                pdfContent.style.color = '#000000';
                 
-                // Ordenar alfabéticamente por apellido
+                // Ordenar alfabéticamente por apellido y luego por nombre
                 const alumnosOrdenados = [...alumnosComision].sort((a, b) => {
-                    return a.apellido.localeCompare(b.apellido);
+                    const apellidoCompare = a.apellido.localeCompare(b.apellido);
+                    if (apellidoCompare !== 0) return apellidoCompare;
+                    return a.nombre.localeCompare(b.nombre);
                 });
                 
-                // Colores según comisión
                 const colores = {
                     'Comisión 1': { principal: '#3b82f6', secundario: '#1e40af', nombre: 'Comisión 1' },
                     'Comisión 2': { principal: '#10b981', secundario: '#047857', nombre: 'Comisión 2' },
@@ -752,84 +748,72 @@
                 
                 const color = colores[comision].principal;
                 const limite = LIMITES_COMISION[comision];
+                const totalAlumnos = alumnosOrdenados.length;
                 
-                // Dividir en grupos de 30 filas para mejor manejo de página
-                const grupos = [];
-                for (let i = 0; i < alumnosOrdenados.length; i += 30) {
-                    grupos.push(alumnosOrdenados.slice(i, i + 30));
-                }
+                // Crear tabla completa con manejo de saltos de página
+                let tablaHTML = `
+                    <div style="text-align: center; margin-bottom: 40px;">
+                        <h1 style="color: ${color}; font-size: 32px; margin-bottom: 10px;">📋 ${comision}</h1>
+                        <p style="color: #6b7280; font-size: 13px; margin-top: 5px;">
+                            Fecha de generación: ${new Date().toLocaleString('es-AR')}<br>
+                            Total de alumnos: ${totalAlumnos} | Límite: ${limite} alumnos
+                        </p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background-color: ${color}; color: white;">
+                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 8%;">N°</th>
+                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 30%;">Apellido</th>
+                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 30%;">Nombre</th>
+                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 20%;">DNI</th>
+                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 12%;">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
                 
-                let tablasHTML = '';
-                
-                grupos.forEach((grupo, grupoIndex) => {
-                    tablasHTML += `
-                        <div style="margin-top: ${grupoIndex === 0 ? '20px' : '40px'}; page-break-inside: avoid;">
-                            ${grupoIndex === 0 ? `
-                                <div style="text-align: center; margin-bottom: 30px;">
-                                    <h1 style="color: ${color}; font-size: 28px; margin-bottom: 10px;">📋 ${comision}</h1>
-                                    <p style="color: #6b7280; font-size: 12px;">
-                                        Fecha de generación: ${new Date().toLocaleString('es-AR')}<br>
-                                        Total de alumnos: ${alumnosOrdenados.length} | Límite: ${limite} alumnos
-                                    </p>
-                                </div>
-                            ` : `
-                                <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
-                                    ${comision} (continuación)
-                                </h3>
-                            `}
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                                <thead>
-                                    <tr style="background-color: ${color}; color: white;">
-                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 8%;">N°</th>
-                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Apellido</th>
-                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Nombre</th>
-                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 20%;">DNI</th>
-                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 12%;">Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${grupo.map((alumno, idx) => {
-                                        const numeroGlobal = grupoIndex * 30 + idx + 1;
-                                        return `
-                                        <tr style="page-break-inside: avoid;">
-                                            <td style="padding: 10px; border: 1px solid #ddd;">${numeroGlobal}</td>
-                                            <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.apellido)}</td>
-                                            <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.nombre)}</td>
-                                            <td style="padding: 10px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
-                                            <td style="padding: 10px; border: 1px solid #ddd;">${formatDate(alumno.fecha_registro).split(',')[0]}</td>
-                                        </tr>
-                                    `}).join('')}
-                                </tbody>
-                            </table>
-                        </div>
+                // Agregar todas las filas con estilos para evitar corte de nombres
+                alumnosOrdenados.forEach((alumno, index) => {
+                    tablaHTML += `
+                        <tr style="page-break-inside: avoid;">
+                            <td style="padding: 12px; border: 1px solid #ddd; vertical-align: top;">${index + 1}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; word-break: break-word; white-space: normal; vertical-align: top;">${escapeHtml(alumno.apellido)}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; word-break: break-word; white-space: normal; vertical-align: top;">${escapeHtml(alumno.nombre)}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; vertical-align: top;">${escapeHtml(alumno.dni)}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; vertical-align: top;">${formatDate(alumno.fecha_registro).split(',')[0]}</td>
+                        </tr>
                     `;
                 });
                 
-                pdfContent.innerHTML = tablasHTML;
+                tablaHTML += `
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin-top: 40px; text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                        <p>Documento generado automáticamente - Sistema de Distribución de Alumnos</p>
+                        <p>${comision} - Total de alumnos: ${totalAlumnos} | Límite: ${limite}</p>
+                    </div>
+                `;
+                
+                pdfContent.innerHTML = tablaHTML;
                 
                 const opt = {
                     margin: [0.5, 0.5, 0.5, 0.5],
                     filename: `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, letterRendering: true },
+                    html2canvas: { scale: 2, letterRendering: true, useCORS: true },
                     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
                 
                 html2pdf().set(opt).from(pdfContent).save()
                     .then(() => {
-                        showToast(`PDF de ${comision} generado correctamente`);
+                        showToast(`✅ PDF de ${comision} generado correctamente (${totalAlumnos} alumnos)`);
                     })
                     .catch((error) => {
                         console.error('Error al generar PDF:', error);
                         showToast(`Error al generar PDF de ${comision}`, true);
                     });
-            }
-            
-            function escapeHtml(text) {
-                if (!text) return '';
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
             }
             
             function renderTable() {
@@ -952,10 +936,8 @@
                 }
             }
             
-            // Exportar comisión específica (función global para onclick)
             window.exportarComisionEspecifica = exportarComisionEspecifica;
             
-            // Event listeners
             document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
