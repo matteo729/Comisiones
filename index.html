@@ -376,6 +376,17 @@
             letter-spacing: 0.5px;
         }
 
+        /* Estilos para los límites específicos */
+        .limite-badge {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 10px;
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 12px;
+            color: #475569;
+        }
+
         @media (max-width: 640px) {
             .card {
                 padding: 24px;
@@ -394,7 +405,7 @@
     <div class="container">
         <div class="card">
             <h1>Formulario de Distribución de Alumnos</h1>
-            <div class="subtitle">Complete los datos para asignar una comisión (Máximo 85 alumnos por comisión)</div>
+            <div class="subtitle">Complete los datos para asignar una comisión</div>
             
             <div id="statusBanner" class="status-banner">
                 <span class="status-icon">✅</span>
@@ -432,7 +443,10 @@
                         <div class="radio-option" data-comision="Comisión 1">
                             <input type="radio" id="comision1" name="comision" value="Comisión 1">
                             <div class="radio-content">
-                                <div class="radio-title">Comisión 1</div>
+                                <div class="radio-title">
+                                    Comisión 1 
+                                    <span class="limite-badge">Límite: 74 alumnos</span>
+                                </div>
                                 <div class="comision-desc">Carpintería: Viernes 12hs | Tejido: Jueves 17hs</div>
                                 <div class="cupo-info" id="cupo1"></div>
                             </div>
@@ -441,7 +455,10 @@
                         <div class="radio-option" data-comision="Comisión 2">
                             <input type="radio" id="comision2" name="comision" value="Comisión 2">
                             <div class="radio-content">
-                                <div class="radio-title">Comisión 2</div>
+                                <div class="radio-title">
+                                    Comisión 2 
+                                    <span class="limite-badge">Límite: 77 alumnos</span>
+                                </div>
                                 <div class="comision-desc">Carpintería: Viernes 14hs | Tejido: Miércoles 18hs</div>
                                 <div class="cupo-info" id="cupo2"></div>
                             </div>
@@ -450,7 +467,10 @@
                         <div class="radio-option" data-comision="Comisión 3">
                             <input type="radio" id="comision3" name="comision" value="Comisión 3">
                             <div class="radio-content">
-                                <div class="radio-title">Comisión 3</div>
+                                <div class="radio-title">
+                                    Comisión 3 
+                                    <span class="limite-badge">Límite: 75 alumnos</span>
+                                </div>
                                 <div class="comision-desc">Carpintería: Miércoles 10hs | Tejido: Jueves 12hs</div>
                                 <div class="cupo-info" id="cupo3"></div>
                             </div>
@@ -474,7 +494,12 @@
             const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            const LIMITE_POR_COMISION = 85;
+            // LÍMITES DIFERENTES POR COMISIÓN
+            const LIMITES_COMISION = {
+                'Comisión 1': 74,
+                'Comisión 2': 77,
+                'Comisión 3': 75
+            };
             
             if (typeof supabase === 'undefined') {
                 console.error('Supabase no se cargó correctamente');
@@ -486,9 +511,9 @@
             
             let inscripcionesAbiertas = true;
             let comisionesDisponibles = {
-                'Comisión 1': { total: 0, disponible: 0 },
-                'Comisión 2': { total: 0, disponible: 0 },
-                'Comisión 3': { total: 0, disponible: 0 }
+                'Comisión 1': { total: 0, disponible: 0, limite: 74 },
+                'Comisión 2': { total: 0, disponible: 0, limite: 77 },
+                'Comisión 3': { total: 0, disponible: 0, limite: 75 }
             };
             
             const form = document.getElementById('alumnoForm');
@@ -535,7 +560,6 @@
                 }
             }
             
-            // Mostrar alerta de DNI duplicado con mensaje claro
             function mostrarAlertaDNIDuplicado(dni) {
                 alertDuplicate.innerHTML = `
                     <div class="icon">⚠️</div>
@@ -547,8 +571,6 @@
                     </div>
                 `;
                 alertDuplicate.style.display = 'flex';
-                
-                // Ocultar después de 8 segundos
                 setTimeout(() => {
                     alertDuplicate.style.display = 'none';
                 }, 8000);
@@ -569,13 +591,9 @@
                     if (error) throw error;
                     
                     if (data && data.length > 0) {
-                        // Mostrar alerta visible y clara
                         mostrarAlertaDNIDuplicado(dni);
-                        // También mostrar en el campo de error
                         showError('dni', 'error-dni', '❌ ESTE DNI YA ESTÁ REGISTRADO. NO PUEDES VOLVER A INSCRIBIRTE.');
-                        // Limpiar el campo DNI para que el usuario lo vea
                         dniInput.classList.add('error');
-                        // Enfocar el campo para que el usuario lo vea
                         dniInput.focus();
                         return true;
                     }
@@ -586,7 +604,6 @@
                 }
             }
             
-            // Verificación en tiempo real mientras escribe el DNI
             async function verificarDNIEnTiempoReal() {
                 const dni = dniInput.value.trim();
                 if (dni && /^\d{7,8}$/.test(dni)) {
@@ -626,16 +643,18 @@
                     
                     if (error) throw error;
                     
+                    // Reiniciar con los límites específicos
                     comisionesDisponibles = {
-                        'Comisión 1': { total: 0, disponible: LIMITE_POR_COMISION },
-                        'Comisión 2': { total: 0, disponible: LIMITE_POR_COMISION },
-                        'Comisión 3': { total: 0, disponible: LIMITE_POR_COMISION }
+                        'Comisión 1': { total: 0, disponible: LIMITES_COMISION['Comisión 1'], limite: LIMITES_COMISION['Comisión 1'] },
+                        'Comisión 2': { total: 0, disponible: LIMITES_COMISION['Comisión 2'], limite: LIMITES_COMISION['Comisión 2'] },
+                        'Comisión 3': { total: 0, disponible: LIMITES_COMISION['Comisión 3'], limite: LIMITES_COMISION['Comisión 3'] }
                     };
                     
                     data.forEach(alumno => {
                         if (comisionesDisponibles[alumno.comision]) {
                             comisionesDisponibles[alumno.comision].total++;
-                            comisionesDisponibles[alumno.comision].disponible = LIMITE_POR_COMISION - comisionesDisponibles[alumno.comision].total;
+                            comisionesDisponibles[alumno.comision].disponible = 
+                                comisionesDisponibles[alumno.comision].limite - comisionesDisponibles[alumno.comision].total;
                         }
                     });
                     
@@ -658,9 +677,10 @@
             function actualizarCupoUI(comision, elemento) {
                 const disponible = comisionesDisponibles[comision].disponible;
                 const total = comisionesDisponibles[comision].total;
+                const limite = comisionesDisponibles[comision].limite;
                 
                 if (disponible <= 0) {
-                    elemento.innerHTML = `🔴 COMISIÓN COMPLETA (${total}/${LIMITE_POR_COMISION})`;
+                    elemento.innerHTML = `🔴 COMISIÓN COMPLETA (${total}/${limite})`;
                     elemento.className = 'cupo-info cupo-lleno';
                     const radio = document.querySelector(`input[value="${comision}"]`);
                     const optionDiv = radio.closest('.radio-option');
@@ -668,11 +688,11 @@
                         radio.disabled = true;
                         optionDiv.classList.add('disabled');
                     }
-                } else if (disponible <= 15) {
-                    elemento.innerHTML = `⚠️ ÚLTIMOS ${disponible} CUPOS (${total}/${LIMITE_POR_COMISION})`;
+                } else if (disponible <= 10) {
+                    elemento.innerHTML = `⚠️ ÚLTIMOS ${disponible} CUPOS (${total}/${limite})`;
                     elemento.className = 'cupo-info cupo-casi-lleno';
                 } else {
-                    elemento.innerHTML = `✅ ${disponible} cupos disponibles (${total}/${LIMITE_POR_COMISION})`;
+                    elemento.innerHTML = `✅ ${disponible} cupos disponibles (${total}/${limite})`;
                     elemento.className = 'cupo-info cupo-disponible';
                 }
             }
@@ -820,9 +840,10 @@
                 if (dniExistente) return;
                 
                 const comisionSeleccionada = getSelectedComision();
+                const limiteComision = LIMITES_COMISION[comisionSeleccionada];
                 
                 if (comisionesDisponibles[comisionSeleccionada].disponible <= 0) {
-                    showToast('Esta comisión ya no tiene cupos disponibles', true);
+                    showToast(`La ${comisionSeleccionada} ya alcanzó su límite de ${limiteComision} alumnos`, true);
                     return;
                 }
                 
@@ -855,7 +876,9 @@
                             showToast('Error al guardar: ' + error.message, true);
                         }
                     } else {
-                        mostrarAlerta(`✅ ¡REGISTRO EXITOSO! Has sido asignado a ${comisionSeleccionada}. ¡Bienvenido!`, 'success');
+                        const limite = LIMITES_COMISION[comisionSeleccionada];
+                        const disponiblesRestantes = comisionesDisponibles[comisionSeleccionada].disponible - 1;
+                        mostrarAlerta(`✅ ¡REGISTRO EXITOSO! Has sido asignado a ${comisionSeleccionada}. Cupos restantes: ${disponiblesRestantes}/${limite}`, 'success');
                         showToast(`✅ ¡Registro exitoso en ${comisionSeleccionada}!`);
                         resetForm();
                         await cargarConteosComisiones();
