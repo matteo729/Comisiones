@@ -88,24 +88,34 @@
             transform: translateY(-2px);
         }
 
-        .btn-warning {
-            background: #f59e0b;
+        .btn-comision1 {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
             color: white;
         }
 
-        .btn-warning:hover {
-            background: #d97706;
+        .btn-comision1:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
-        .btn-success {
-            background: #10b981;
+        .btn-comision2 {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
             color: white;
         }
 
-        .btn-success:hover {
-            background: #059669;
+        .btn-comision2:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-comision3 {
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            color: white;
+        }
+
+        .btn-comision3:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
 
         .btn-outline {
@@ -134,6 +144,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
             border: 1px solid #e2e8f0;
+            cursor: pointer;
         }
 
         .stat-card:hover {
@@ -209,6 +220,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 16px;
         }
 
         .status-indicator {
@@ -425,6 +443,7 @@
             body { padding: 16px; }
             .header-card { flex-direction: column; text-align: center; }
             .stat-number { font-size: 32px; }
+            .export-buttons { justify-content: center; }
         }
     </style>
 </head>
@@ -434,17 +453,34 @@
         <div class="header-card">
             <div class="header-title">
                 <h1>📋 Panel de Administración</h1>
-                <p>Gestión de alumnos | Límite: 85 alumnos por comisión</p>
+                <p>Gestión de alumnos | Límites: Comisión 1: 74 | Comisión 2: 77 | Comisión 3: 75</p>
             </div>
             <div class="action-buttons">
                 <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
-                <button class="btn btn-success" id="exportPdfBtn">📄 Exportar a PDF</button>
                 <button class="btn btn-outline" id="refreshBtn">🔄 Actualizar</button>
             </div>
         </div>
 
         <!-- Estadísticas -->
         <div class="stats-grid" id="statsGrid"></div>
+
+        <!-- Panel de Exportación por Comisión -->
+        <div class="control-panel">
+            <div class="panel-title">
+                📄 Exportar por Comisión
+            </div>
+            <div class="export-buttons">
+                <button class="btn btn-comision1" id="exportComision1Btn">
+                    🪑 Comisión 1 - Exportar PDF
+                </button>
+                <button class="btn btn-comision2" id="exportComision2Btn">
+                    🪑 Comisión 2 - Exportar PDF
+                </button>
+                <button class="btn btn-comision3" id="exportComision3Btn">
+                    🪑 Comisión 3 - Exportar PDF
+                </button>
+            </div>
+        </div>
 
         <!-- Panel de Control - Cancelar Inscripciones -->
         <div class="control-panel">
@@ -457,7 +493,7 @@
                     <div id="statusIndicator" class="status-indicator status-open">✅ Inscripciones abiertas</div>
                 </div>
                 <div>
-                    <button class="btn btn-warning" id="toggleInscripcionesBtn">🔒 Cancelar Inscripciones</button>
+                    <button class="btn btn-danger" id="toggleInscripcionesBtn">🔒 Cancelar Inscripciones</button>
                 </div>
             </div>
         </div>
@@ -482,10 +518,6 @@
                     <label>🔢 Buscar por DNI</label>
                     <input type="text" id="dniFilter" placeholder="DNI">
                 </div>
-                <div class="filter-group">
-                    <label>🌐 Buscar por IP</label>
-                    <input type="text" id="ipFilter" placeholder="IP Address">
-                </div>
             </div>
             <div style="margin-top: 20px; display: flex; gap: 12px;">
                 <button class="btn btn-primary" id="applyFiltersBtn">Aplicar Filtros</button>
@@ -506,7 +538,6 @@
                             <th onclick="sortTable('apellido')">Apellido ⬍</th>
                             <th onclick="sortTable('dni')">DNI ⬍</th>
                             <th onclick="sortTable('comision')">Comisión ⬍</th>
-                            <th onclick="sortTable('ip_address')">IP Address ⬍</th>
                             <th onclick="sortTable('fecha_registro')">Fecha Registro ⬍</th>
                             <th>Acciones</th>
                         </tr>
@@ -533,7 +564,7 @@
             <h3 id="toggleModalTitle">⚠️ Confirmar acción</h3>
             <p id="toggleModalMessage">¿Está seguro de que desea cancelar las inscripciones?</p>
             <div class="modal-buttons">
-                <button class="btn btn-warning" id="confirmToggleBtn">Confirmar</button>
+                <button class="btn btn-danger" id="confirmToggleBtn">Confirmar</button>
                 <button class="btn" id="cancelToggleBtn" style="background: #e2e8f0;">Cancelar</button>
             </div>
         </div>
@@ -547,7 +578,12 @@
             const SUPABASE_URL = 'https://abhmcfmbsqpqodbedsum.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaG1jZm1ic3FwcW9kYmVkc3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTA3MTMsImV4cCI6MjA4OTg2NjcxM30.KIqfK4_NhBMj3cwhHCwhFbDRTxwS5NAYi_QOyvcA210';
             
-            const LIMITE_POR_COMISION = 85;
+            // LÍMITES DIFERENTES POR COMISIÓN
+            const LIMITES_COMISION = {
+                'Comisión 1': 74,
+                'Comisión 2': 77,
+                'Comisión 3': 75
+            };
             
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
@@ -602,7 +638,7 @@
                     statusIndicator.className = 'status-indicator status-open';
                     statusIndicator.innerHTML = '✅ Inscripciones abiertas';
                     toggleBtn.innerHTML = '🔒 Cancelar Inscripciones';
-                    toggleBtn.className = 'btn btn-warning';
+                    toggleBtn.className = 'btn btn-danger';
                 } else {
                     statusIndicator.className = 'status-indicator status-closed';
                     statusIndicator.innerHTML = '🔴 Inscripciones cerradas';
@@ -639,58 +675,168 @@
                 const comision3Total = allAlumnos.filter(a => a.comision === 'Comisión 3').length;
                 
                 statsGrid.innerHTML = `
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 1')" style="cursor: pointer;">
                         <div class="stat-header">
                             <span class="stat-title">Comisión 1</span>
                             <span class="stat-icon">🪑</span>
                         </div>
-                        <div class="stat-number">${comision1Total}/${LIMITE_POR_COMISION}</div>
+                        <div class="stat-number">${comision1Total}/${LIMITES_COMISION['Comisión 1']}</div>
                         <div class="progress-bar">
-                            <div class="progress-fill comision1" style="width: ${(comision1Total / LIMITE_POR_COMISION) * 100}%"></div>
+                            <div class="progress-fill comision1" style="width: ${(comision1Total / LIMITES_COMISION['Comisión 1']) * 100}%"></div>
                         </div>
-                        <div class="stat-footer">${LIMITE_POR_COMISION - comision1Total} cupos disponibles</div>
+                        <div class="stat-footer">${LIMITES_COMISION['Comisión 1'] - comision1Total} cupos disponibles</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 2')" style="cursor: pointer;">
                         <div class="stat-header">
                             <span class="stat-title">Comisión 2</span>
                             <span class="stat-icon">🪑</span>
                         </div>
-                        <div class="stat-number">${comision2Total}/${LIMITE_POR_COMISION}</div>
+                        <div class="stat-number">${comision2Total}/${LIMITES_COMISION['Comisión 2']}</div>
                         <div class="progress-bar">
-                            <div class="progress-fill comision2" style="width: ${(comision2Total / LIMITE_POR_COMISION) * 100}%"></div>
+                            <div class="progress-fill comision2" style="width: ${(comision2Total / LIMITES_COMISION['Comisión 2']) * 100}%"></div>
                         </div>
-                        <div class="stat-footer">${LIMITE_POR_COMISION - comision2Total} cupos disponibles</div>
+                        <div class="stat-footer">${LIMITES_COMISION['Comisión 2'] - comision2Total} cupos disponibles</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 3')" style="cursor: pointer;">
                         <div class="stat-header">
                             <span class="stat-title">Comisión 3</span>
                             <span class="stat-icon">🪑</span>
                         </div>
-                        <div class="stat-number">${comision3Total}/${LIMITE_POR_COMISION}</div>
+                        <div class="stat-number">${comision3Total}/${LIMITES_COMISION['Comisión 3']}</div>
                         <div class="progress-bar">
-                            <div class="progress-fill comision3" style="width: ${(comision3Total / LIMITE_POR_COMISION) * 100}%"></div>
+                            <div class="progress-fill comision3" style="width: ${(comision3Total / LIMITES_COMISION['Comisión 3']) * 100}%"></div>
                         </div>
-                        <div class="stat-footer">${LIMITE_POR_COMISION - comision3Total} cupos disponibles</div>
+                        <div class="stat-footer">${LIMITES_COMISION['Comisión 3'] - comision3Total} cupos disponibles</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-header">
                             <span class="stat-title">Total General</span>
                             <span class="stat-icon">📊</span>
                         </div>
-                        <div class="stat-number">${allAlumnos.length}/${LIMITE_POR_COMISION * 3}</div>
+                        <div class="stat-number">${allAlumnos.length}/${Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0)}</div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(allAlumnos.length / (LIMITE_POR_COMISION * 3)) * 100}%; background: linear-gradient(90deg, #8b5cf6, #6d28d9);"></div>
+                            <div class="progress-fill" style="width: ${(allAlumnos.length / Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0)) * 100}%; background: linear-gradient(90deg, #8b5cf6, #6d28d9);"></div>
                         </div>
-                        <div class="stat-footer">${(LIMITE_POR_COMISION * 3) - allAlumnos.length} cupos totales disponibles</div>
+                        <div class="stat-footer">${Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0) - allAlumnos.length} cupos totales disponibles</div>
                     </div>
                 `;
+            }
+            
+            // Función para exportar PDF de una comisión específica
+            function exportarComisionEspecifica(comision) {
+                const alumnosComision = allAlumnos.filter(a => a.comision === comision);
+                
+                if (alumnosComision.length === 0) {
+                    showToast(`No hay alumnos en ${comision} para exportar`, true);
+                    return;
+                }
+                
+                showToast(`Generando PDF de ${comision}...`);
+                
+                const pdfContent = document.createElement('div');
+                pdfContent.style.padding = '30px';
+                pdfContent.style.fontFamily = 'Arial, sans-serif';
+                pdfContent.style.backgroundColor = 'white';
+                
+                // Ordenar alfabéticamente por apellido
+                const alumnosOrdenados = [...alumnosComision].sort((a, b) => {
+                    return a.apellido.localeCompare(b.apellido);
+                });
+                
+                // Colores según comisión
+                const colores = {
+                    'Comisión 1': { principal: '#3b82f6', secundario: '#1e40af', nombre: 'Comisión 1' },
+                    'Comisión 2': { principal: '#10b981', secundario: '#047857', nombre: 'Comisión 2' },
+                    'Comisión 3': { principal: '#f59e0b', secundario: '#b45309', nombre: 'Comisión 3' }
+                };
+                
+                const color = colores[comision].principal;
+                const limite = LIMITES_COMISION[comision];
+                
+                // Dividir en grupos de 30 filas para mejor manejo de página
+                const grupos = [];
+                for (let i = 0; i < alumnosOrdenados.length; i += 30) {
+                    grupos.push(alumnosOrdenados.slice(i, i + 30));
+                }
+                
+                let tablasHTML = '';
+                
+                grupos.forEach((grupo, grupoIndex) => {
+                    tablasHTML += `
+                        <div style="margin-top: ${grupoIndex === 0 ? '20px' : '40px'}; page-break-inside: avoid;">
+                            ${grupoIndex === 0 ? `
+                                <div style="text-align: center; margin-bottom: 30px;">
+                                    <h1 style="color: ${color}; font-size: 28px; margin-bottom: 10px;">📋 ${comision}</h1>
+                                    <p style="color: #6b7280; font-size: 12px;">
+                                        Fecha de generación: ${new Date().toLocaleString('es-AR')}<br>
+                                        Total de alumnos: ${alumnosOrdenados.length} | Límite: ${limite} alumnos
+                                    </p>
+                                </div>
+                            ` : `
+                                <h3 style="color: ${color}; border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 15px;">
+                                    ${comision} (continuación)
+                                </h3>
+                            `}
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                <thead>
+                                    <tr style="background-color: ${color}; color: white;">
+                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 8%;">N°</th>
+                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Apellido</th>
+                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 30%;">Nombre</th>
+                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 20%;">DNI</th>
+                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 12%;">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${grupo.map((alumno, idx) => {
+                                        const numeroGlobal = grupoIndex * 30 + idx + 1;
+                                        return `
+                                        <tr style="page-break-inside: avoid;">
+                                            <td style="padding: 10px; border: 1px solid #ddd;">${numeroGlobal}</td>
+                                            <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.apellido)}</td>
+                                            <td style="padding: 10px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.nombre)}</td>
+                                            <td style="padding: 10px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                                            <td style="padding: 10px; border: 1px solid #ddd;">${formatDate(alumno.fecha_registro).split(',')[0]}</td>
+                                        </tr>
+                                    `}).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                });
+                
+                pdfContent.innerHTML = tablasHTML;
+                
+                const opt = {
+                    margin: [0.5, 0.5, 0.5, 0.5],
+                    filename: `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, letterRendering: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(pdfContent).save()
+                    .then(() => {
+                        showToast(`PDF de ${comision} generado correctamente`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al generar PDF:', error);
+                        showToast(`Error al generar PDF de ${comision}`, true);
+                    });
+            }
+            
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
             }
             
             function renderTable() {
                 const tbody = document.getElementById('tableBody');
                 
                 if (filteredAlumnos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:60px;">📭 No hay alumnos registrados</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:60px;">📭 No hay alumnos registrados</td></tr>';
                     return;
                 }
                 
@@ -715,18 +861,10 @@
                         <td>${escapeHtml(alumno.apellido)}</td>
                         <td>${escapeHtml(alumno.dni)}</td>
                         <td>${getBadge(alumno.comision)}</td>
-                        <td><code>${escapeHtml(alumno.ip_address || 'N/A')}</code></td>
                         <td>${formatDate(alumno.fecha_registro)}</td>
                         <td><span class="delete-btn" onclick="deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️ Eliminar</span></td>
                     </tr>
                 `).join('');
-            }
-            
-            function escapeHtml(text) {
-                if (!text) return '';
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
             }
             
             window.sortTable = function(column) {
@@ -743,7 +881,6 @@
                 const searchTerm = document.getElementById('searchInput').value.toLowerCase();
                 const comisionValue = document.getElementById('comisionFilter').value;
                 const dniValue = document.getElementById('dniFilter').value;
-                const ipValue = document.getElementById('ipFilter').value.toLowerCase();
                 
                 filteredAlumnos = allAlumnos.filter(alumno => {
                     if (searchTerm) {
@@ -752,7 +889,6 @@
                     }
                     if (comisionValue && alumno.comision !== comisionValue) return false;
                     if (dniValue && !alumno.dni.includes(dniValue)) return false;
-                    if (ipValue && (!alumno.ip_address || !alumno.ip_address.toLowerCase().includes(ipValue))) return false;
                     return true;
                 });
                 renderTable();
@@ -763,7 +899,6 @@
                 document.getElementById('searchInput').value = '';
                 document.getElementById('comisionFilter').value = '';
                 document.getElementById('dniFilter').value = '';
-                document.getElementById('ipFilter').value = '';
                 filteredAlumnos = [...allAlumnos];
                 renderTable();
                 showToast('Filtros limpiados');
@@ -817,68 +952,19 @@
                 }
             }
             
-            function exportToPDF() {
-                if (filteredAlumnos.length === 0) {
-                    showToast('No hay datos para exportar', true);
-                    return;
-                }
-                
-                showToast('Generando PDF...');
-                
-                const pdfContent = document.createElement('div');
-                pdfContent.style.padding = '30px';
-                pdfContent.style.fontFamily = 'Arial, sans-serif';
-                
-                const comision1 = filteredAlumnos.filter(a => a.comision === 'Comisión 1');
-                const comision2 = filteredAlumnos.filter(a => a.comision === 'Comisión 2');
-                const comision3 = filteredAlumnos.filter(a => a.comision === 'Comisión 3');
-                
-                const ordenar = (a, b) => a.apellido.localeCompare(b.apellido);
-                comision1.sort(ordenar);
-                comision2.sort(ordenar);
-                comision3.sort(ordenar);
-                
-                function crearTabla(numero, alumnos, color) {
-                    if (alumnos.length === 0) return `<div style="margin-top:30px"><h3 style="color:${color}">Comisión ${numero} (0 alumnos)</h3><p>No hay alumnos</p></div>`;
-                    
-                    const grupos = [];
-                    for (let i = 0; i < alumnos.length; i += 25) grupos.push(alumnos.slice(i, i + 25));
-                    
-                    return grupos.map((grupo, idx) => `
-                        <div style="margin-top:30px; page-break-inside:avoid;">
-                            <h3 style="color:${color}; border-bottom:2px solid ${color}; padding-bottom:8px;">Comisión ${numero} ${idx === 0 ? `(${alumnos.length} alumnos)` : '(continuación)'}</h3>
-                            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-                                <thead><tr style="background:${color}; color:white;"><th style="padding:10px; border:1px solid #ddd;">N°</th><th style="padding:10px; border:1px solid #ddd;">Apellido</th><th style="padding:10px; border:1px solid #ddd;">Nombre</th><th style="padding:10px; border:1px solid #ddd;">DNI</th></tr></thead>
-                                <tbody>${grupo.map((a, i) => `<tr><td style="padding:8px; border:1px solid #ddd;">${idx * 25 + i + 1}</td><td style="padding:8px; border:1px solid #ddd;">${a.apellido}</td><td style="padding:8px; border:1px solid #ddd;">${a.nombre}</td><td style="padding:8px; border:1px solid #ddd;">${a.dni}</td></tr>`).join('')}</tbody>
-                            </table>
-                        </div>
-                    `).join('');
-                }
-                
-                pdfContent.innerHTML = `
-                    <div style="text-align:center; margin-bottom:30px;">
-                        <h1>📋 Listado de Alumnos por Comisión</h1>
-                        <p>Fecha: ${new Date().toLocaleString('es-AR')}<br>Total: ${filteredAlumnos.length} alumnos | Límite: 85 por comisión</p>
-                    </div>
-                    <div style="display:flex; gap:20px; margin-bottom:30px; justify-content:center;">
-                        <div style="background:#3b82f6; color:white; padding:15px; border-radius:12px; text-align:center; flex:1"><div style="font-size:28px; font-weight:bold">${comision1.length}</div><div>Comisión 1</div></div>
-                        <div style="background:#10b981; color:white; padding:15px; border-radius:12px; text-align:center; flex:1"><div style="font-size:28px; font-weight:bold">${comision2.length}</div><div>Comisión 2</div></div>
-                        <div style="background:#f59e0b; color:white; padding:15px; border-radius:12px; text-align:center; flex:1"><div style="font-size:28px; font-weight:bold">${comision3.length}</div><div>Comisión 3</div></div>
-                    </div>
-                    ${crearTabla(1, comision1, '#3b82f6')}
-                    ${crearTabla(2, comision2, '#10b981')}
-                    ${crearTabla(3, comision3, '#f59e0b')}
-                `;
-                
-                html2pdf().set({ margin: 0.5, filename: `alumnos_${new Date().toISOString().split('T')[0]}.pdf`, html2canvas: { scale: 2 } }).from(pdfContent).save();
-            }
+            // Exportar comisión específica (función global para onclick)
+            window.exportarComisionEspecifica = exportarComisionEspecifica;
             
+            // Event listeners
             document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
-            document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
             document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
             document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
+            
+            document.getElementById('exportComision1Btn').addEventListener('click', () => exportarComisionEspecifica('Comisión 1'));
+            document.getElementById('exportComision2Btn').addEventListener('click', () => exportarComisionEspecifica('Comisión 2'));
+            document.getElementById('exportComision3Btn').addEventListener('click', () => exportarComisionEspecifica('Comisión 3'));
             
             const toggleModal = document.getElementById('toggleModal');
             const toggleBtn = document.getElementById('toggleInscripcionesBtn');
