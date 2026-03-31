@@ -22,7 +22,6 @@
             margin: 0 auto;
         }
 
-        /* Header compacto para móvil */
         .header-card {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-radius: 20px;
@@ -53,7 +52,6 @@
             flex-wrap: wrap;
         }
 
-        /* Botones compactos */
         .btn {
             padding: 8px 14px;
             border-radius: 10px;
@@ -89,7 +87,6 @@
             color: white;
         }
 
-        /* Tarjetas de estadísticas en grid responsive */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -163,7 +160,6 @@
             color: #64748b;
         }
 
-        /* Panel de control compacto */
         .control-panel {
             background: white;
             border-radius: 16px;
@@ -182,7 +178,6 @@
             gap: 6px;
         }
 
-        /* Botones de exportación en fila para móvil */
         .export-buttons {
             display: flex;
             gap: 10px;
@@ -233,7 +228,6 @@
             color: #991b1b;
         }
 
-        /* Filtros compactos */
         .filters-section {
             background: white;
             border-radius: 16px;
@@ -285,7 +279,6 @@
             padding: 10px;
         }
 
-        /* Tabla con scroll horizontal para móvil */
         .table-container {
             background: white;
             border-radius: 16px;
@@ -351,7 +344,6 @@
             font-size: 14px;
         }
 
-        /* Modal compacto */
         .modal {
             display: none;
             position: fixed;
@@ -433,74 +425,10 @@
             }
         }
 
-        /* Ajustes para pantallas muy pequeñas */
-        @media (max-width: 480px) {
-            body {
-                padding: 8px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            
-            .stat-card {
-                padding: 10px;
-            }
-            
-            .stat-number {
-                font-size: 22px;
-            }
-            
-            .stat-title {
-                font-size: 10px;
-            }
-            
-            .export-buttons .btn {
-                font-size: 10px;
-                padding: 6px 8px;
-                white-space: normal;
-                word-break: keep-all;
-            }
-            
-            .btn {
-                padding: 6px 10px;
-                font-size: 11px;
-            }
-            
-            .control-panel {
-                padding: 12px;
-            }
-            
-            .filters-section {
-                padding: 12px;
-            }
-        }
-
-        /* Para tabletas */
-        @media (min-width: 768px) and (max-width: 1024px) {
+        @media (min-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .export-buttons .btn {
-                flex: 0 1 auto;
-            }
-        }
-
-        /* Para desktop */
-        @media (min-width: 1025px) {
-            body {
-                padding: 24px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
-            }
-            
-            .container {
-                max-width: 1600px;
+                gap: 16px;
             }
             
             .filters-grid {
@@ -521,11 +449,21 @@
                 flex: 0 1 auto;
             }
         }
+
+        @media (min-width: 1024px) {
+            body {
+                padding: 24px;
+            }
+            
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header compacto -->
         <div class="header-card">
             <div class="header-title">
                 <h1>📋 Panel Admin</h1>
@@ -537,10 +475,8 @@
             </div>
         </div>
 
-        <!-- Estadísticas en grid responsive -->
         <div class="stats-grid" id="statsGrid"></div>
 
-        <!-- Botones de exportación por comisión -->
         <div class="control-panel">
             <div class="panel-title">
                 📄 Exportar PDF
@@ -552,7 +488,6 @@
             </div>
         </div>
 
-        <!-- Control de inscripciones -->
         <div class="control-panel">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                 <div>
@@ -563,7 +498,6 @@
             </div>
         </div>
 
-        <!-- Filtros compactos -->
         <div class="filters-section">
             <div class="filters-grid">
                 <div class="filter-group">
@@ -590,7 +524,6 @@
             </div>
         </div>
 
-        <!-- Tabla con scroll horizontal -->
         <div class="table-container">
             <div id="loadingState" class="loading">
                 <div>Cargando...</div>
@@ -769,104 +702,214 @@
             }
             
             // FUNCIÓN OPTIMIZADA PARA EXPORTAR PDF CON TODOS LOS ALUMNOS
-function exportarComisionEspecifica(comision) {
-    const alumnosComision = allAlumnos.filter(a => a.comision === comision);
-    
-    if (alumnosComision.length === 0) {
-        showToast(`No hay alumnos en ${comision}`, true);
-        return;
-    }
-    
-    showToast(`Generando PDF de ${comision} (${alumnosComision.length} alumnos)...`);
-    
-    // Crear elemento para el PDF
-    const pdfContent = document.createElement('div');
-    pdfContent.style.padding = '20px';
-    pdfContent.style.fontFamily = 'Arial, sans-serif';
-    pdfContent.style.backgroundColor = 'white';
-    
-    // Ordenar alfabéticamente por apellido y nombre
-    const alumnosOrdenados = [...alumnosComision].sort((a, b) => {
-        const apellidoCompare = a.apellido.localeCompare(b.apellido);
-        if (apellidoCompare !== 0) return apellidoCompare;
-        return a.nombre.localeCompare(b.nombre);
-    });
-    
-    // Colores por comisión
-    const colores = {
-        'Comisión 1': '#3b82f6',
-        'Comisión 2': '#10b981',
-        'Comisión 3': '#f59e0b'
-    };
-    const color = colores[comision];
-    const limite = LIMITES_COMISION[comision];
-    const total = alumnosOrdenados.length;
-    
-    // Construir la tabla con TODOS los alumnos
-    let tablaHTML = `
-        <div style="text-align: center; margin-bottom: 25px;">
-            <h1 style="color: ${color}; font-size: 26px; margin-bottom: 5px;">📋 ${comision}</h1>
-            <p style="color: #6b7280; font-size: 11px;">
-                Fecha: ${new Date().toLocaleString('es-AR')} | Total: ${total}/${limite} alumnos
-            </p>
-        </div>
-        
-        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-            <thead>
-                <tr style="background-color: ${color}; color: white;">
-                    <th style="padding: 10px; border: 1px solid #ddd; width: 8%;">N°</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Apellido</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Nombre</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; width: 20%;">DNI</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; width: 12%;">Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    // Agregar CADA UNO de los alumnos
-    for (let i = 0; i < alumnosOrdenados.length; i++) {
-        const alumno = alumnosOrdenados[i];
-        tablaHTML += `
-            <tr style="page-break-inside: avoid;">
-                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${i + 1}</td>
-                <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.apellido)}</td>
-                <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.nombre)}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${formatDate(alumno.fecha_registro)}</td>
-            </tr>
-        `;
-    }
-    
-    tablaHTML += `
-            </tbody>
-        </table>
-        
-        <div style="margin-top: 20px; text-align: center; font-size: 9px; color: #9ca3af; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-            Documento generado automáticamente - Sistema de Distribución de Alumnos
-        </div>
-    `;
-    
-    pdfContent.innerHTML = tablaHTML;
-    
-    // Configuración optimizada para PDF
-    const opt = {
-        margin: [0.4, 0.4, 0.4, 0.4],
-        filename: `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, letterRendering: true },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    
-    html2pdf().set(opt).from(pdfContent).save()
-        .then(() => {
-            showToast(`✅ PDF de ${comision} generado (${total} alumnos)`);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            showToast(`Error al generar PDF`, true);
-        });
-}
+            function exportarComisionEspecifica(comision) {
+                const alumnosComision = allAlumnos.filter(a => a.comision === comision);
+                
+                if (alumnosComision.length === 0) {
+                    showToast(`No hay alumnos en ${comision}`, true);
+                    return;
+                }
+                
+                showToast(`Generando PDF de ${comision} (${alumnosComision.length} alumnos)...`);
+                
+                const pdfContent = document.createElement('div');
+                pdfContent.style.padding = '20px';
+                pdfContent.style.fontFamily = 'Arial, sans-serif';
+                pdfContent.style.backgroundColor = 'white';
+                
+                const alumnosOrdenados = [...alumnosComision].sort((a, b) => {
+                    const apellidoCompare = a.apellido.localeCompare(b.apellido);
+                    if (apellidoCompare !== 0) return apellidoCompare;
+                    return a.nombre.localeCompare(b.nombre);
+                });
+                
+                const colores = {
+                    'Comisión 1': '#3b82f6',
+                    'Comisión 2': '#10b981',
+                    'Comisión 3': '#f59e0b'
+                };
+                const color = colores[comision];
+                const limite = LIMITES_COMISION[comision];
+                const total = alumnosOrdenados.length;
+                
+                let tablaHTML = `
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h1 style="color: ${color}; font-size: 24px; margin-bottom: 5px;">📋 ${comision}</h1>
+                        <p style="color: #6b7280; font-size: 11px;">
+                            Fecha: ${new Date().toLocaleString('es-AR')} | Total: ${total}/${limite} alumnos
+                        </p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        <thead>
+                            <tr style="background-color: ${color}; color: white;">
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 8%;">N°</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Apellido</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Nombre</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 20%;">DNI</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 12%;">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                for (let i = 0; i < alumnosOrdenados.length; i++) {
+                    const alumno = alumnosOrdenados[i];
+                    tablaHTML += `
+                        <tr style="page-break-inside: avoid;">
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${i + 1}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.apellido)}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.nombre)}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${formatDate(alumno.fecha_registro)}</td>
+                        </tr>
+                    `;
+                }
+                
+                tablaHTML += `
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin-top: 20px; text-align: center; font-size: 9px; color: #9ca3af; padding-top: 10px; border-top: 1px solid #e5e7eb;">
+                        Documento generado automáticamente - Sistema de Distribución de Alumnos
+                    </div>
+                `;
+                
+                pdfContent.innerHTML = tablaHTML;
+                
+                const opt = {
+                    margin: [0.4, 0.4, 0.4, 0.4],
+                    filename: `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, letterRendering: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(pdfContent).save()
+                    .then(() => {
+                        showToast(`✅ PDF de ${comision} generado (${total} alumnos)`);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        showToast(`Error al generar PDF`, true);
+                    });
+            }
+            
+            function renderTable() {
+                const tbody = document.getElementById('tableBody');
+                if (filteredAlumnos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">📭 No hay alumnos</td></tr>';
+                    return;
+                }
+                
+                const sorted = [...filteredAlumnos].sort((a, b) => {
+                    let valA = a[currentSort.column];
+                    let valB = b[currentSort.column];
+                    if (currentSort.column === 'fecha_registro') {
+                        valA = new Date(valA);
+                        valB = new Date(valB);
+                    } else if (typeof valA === 'string') {
+                        valA = valA.toLowerCase();
+                        valB = valB.toLowerCase();
+                    }
+                    if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+                
+                tbody.innerHTML = sorted.map(alumno => `
+                    <tr>
+                        <td><strong>${escapeHtml(alumno.nombre)}</strong></td>
+                        <td>${escapeHtml(alumno.apellido)}</td>
+                        <td>${escapeHtml(alumno.dni)}</td>
+                        <td>${getBadge(alumno.comision)}</td>
+                        <td>${formatDate(alumno.fecha_registro)}</td>
+                        <td><span class="delete-btn" onclick="deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️</span></td>
+                    </tr>
+                `).join('');
+            }
+            
+            window.sortTable = function(column) {
+                if (currentSort.column === column) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.column = column;
+                    currentSort.direction = 'asc';
+                }
+                renderTable();
+            };
+            
+            function applyFilters() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const comisionValue = document.getElementById('comisionFilter').value;
+                const dniValue = document.getElementById('dniFilter').value;
+                
+                filteredAlumnos = allAlumnos.filter(alumno => {
+                    if (searchTerm) {
+                        const fullName = `${alumno.nombre} ${alumno.apellido}`.toLowerCase();
+                        if (!fullName.includes(searchTerm)) return false;
+                    }
+                    if (comisionValue && alumno.comision !== comisionValue) return false;
+                    if (dniValue && !alumno.dni.includes(dniValue)) return false;
+                    return true;
+                });
+                renderTable();
+                showToast(`Mostrando ${filteredAlumnos.length} de ${allAlumnos.length}`);
+            }
+            
+            function clearFilters() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('comisionFilter').value = '';
+                document.getElementById('dniFilter').value = '';
+                filteredAlumnos = [...allAlumnos];
+                renderTable();
+                showToast('Filtros limpiados');
+            }
+            
+            window.deleteAlumno = function(id, nombre) {
+                alumnoToDelete = id;
+                document.getElementById('deleteMessage').textContent = `¿Eliminar a ${nombre}?`;
+                document.getElementById('deleteModal').classList.add('show');
+            };
+            
+            async function confirmDelete() {
+                if (!alumnoToDelete) return;
+                try {
+                    const { error } = await supabaseClient.from('alumnos').delete().eq('id', alumnoToDelete);
+                    if (error) throw error;
+                    showToast('Alumno eliminado');
+                    await loadAlumnos();
+                } catch (error) {
+                    showToast('Error al eliminar', true);
+                }
+                closeModal();
+            }
+            
+            function closeModal() {
+                document.getElementById('deleteModal').classList.remove('show');
+                alumnoToDelete = null;
+            }
+            
+            async function loadAlumnos() {
+                const loadingState = document.getElementById('loadingState');
+                const tableContent = document.getElementById('tableContent');
+                loadingState.style.display = 'block';
+                tableContent.style.display = 'none';
+                
+                try {
+                    const { data, error } = await supabaseClient.from('alumnos').select('*').order('fecha_registro', { ascending: false });
+                    if (error) throw error;
+                    allAlumnos = data || [];
+                    filteredAlumnos = [...allAlumnos];
+                    updateStats();
+                    renderTable();
+                    loadingState.style.display = 'none';
+                    tableContent.style.display = 'block';
+                } catch (error) {
+                    loadingState.innerHTML = '<div>❌ Error</div>';
+                    showToast('Error al cargar', true);
+                }
+            }
             
             window.exportarComisionEspecifica = exportarComisionEspecifica;
             
