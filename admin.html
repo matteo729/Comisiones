@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Panel de Administración - Alumnos</title>
     <style>
         * {
@@ -14,48 +14,50 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             background: #f1f5f9;
-            padding: 24px;
+            padding: 12px;
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 100%;
             margin: 0 auto;
         }
 
+        /* Header compacto para móvil */
         .header-card {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 24px;
-            padding: 24px 32px;
-            margin-bottom: 24px;
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 12px;
         }
 
         .header-title h1 {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .header-title p {
-            font-size: 14px;
+            font-size: 11px;
             opacity: 0.8;
         }
 
         .action-buttons {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
+        /* Botones compactos */
         .btn {
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             border: none;
@@ -63,7 +65,8 @@
             font-family: inherit;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -73,7 +76,6 @@
 
         .btn-primary:hover {
             background: #2563eb;
-            transform: translateY(-2px);
         }
 
         .btn-danger {
@@ -81,107 +83,68 @@
             color: white;
         }
 
-        .btn-danger:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-        }
-
-        .btn-comision1 {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            color: white;
-        }
-
-        .btn-comision1:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-comision2 {
-            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-            color: white;
-        }
-
-        .btn-comision2:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-comision3 {
-            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-            color: white;
-        }
-
-        .btn-comision3:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-        }
-
         .btn-outline {
             background: transparent;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
         }
 
-        .btn-outline:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: white;
-        }
-
+        /* Tarjetas de estadísticas en grid responsive */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .stat-card {
             background: white;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s;
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             border: 1px solid #e2e8f0;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .stat-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
         }
 
         .stat-title {
-            font-size: 16px;
+            font-size: 11px;
             font-weight: 600;
             color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .stat-icon {
-            font-size: 28px;
+            font-size: 20px;
         }
 
         .stat-number {
-            font-size: 42px;
+            font-size: 28px;
             font-weight: 800;
             color: #1e293b;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 8px;
+            height: 6px;
             background: #e2e8f0;
             border-radius: 10px;
             overflow: hidden;
-            margin-top: 12px;
+            margin-top: 8px;
         }
 
         .progress-fill {
@@ -195,43 +158,68 @@
         .progress-fill.comision3 { background: linear-gradient(90deg, #f59e0b, #b45309); }
 
         .stat-footer {
-            margin-top: 12px;
-            font-size: 13px;
+            margin-top: 8px;
+            font-size: 10px;
             color: #64748b;
         }
 
+        /* Panel de control compacto */
         .control-panel {
             background: white;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 24px;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
             border: 1px solid #e2e8f0;
         }
 
         .panel-title {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
+        /* Botones de exportación en fila para móvil */
         .export-buttons {
             display: flex;
-            gap: 16px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 16px;
+            margin-top: 12px;
+        }
+
+        .export-buttons .btn {
+            flex: 1;
+            justify-content: center;
+            white-space: nowrap;
+            padding: 8px 12px;
+            font-size: 11px;
+        }
+
+        .btn-comision1 {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .btn-comision2 {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: white;
+        }
+
+        .btn-comision3 {
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            color: white;
         }
 
         .status-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
+            gap: 6px;
+            padding: 6px 12px;
             border-radius: 40px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
         }
 
@@ -245,18 +233,19 @@
             color: #991b1b;
         }
 
+        /* Filtros compactos */
         .filters-section {
             background: white;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 24px;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
             border: 1px solid #e2e8f0;
         }
 
         .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .filter-group {
@@ -265,78 +254,79 @@
         }
 
         .filter-group label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .filter-group input,
         .filter-group select {
-            padding: 10px 14px;
-            border: 2px solid #e2e8f0;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
             font-size: 14px;
             font-family: inherit;
-            transition: all 0.2s;
             background: #f8fafc;
+            width: 100%;
         }
 
-        .filter-group input:focus,
-        .filter-group select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            background: white;
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
         }
 
+        .filter-actions .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        /* Tabla con scroll horizontal para móvil */
         .table-container {
             background: white;
-            border-radius: 20px;
+            border-radius: 16px;
             overflow-x: auto;
             border: 1px solid #e2e8f0;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
+            min-width: 600px;
             border-collapse: collapse;
         }
 
         th {
             background: #f8fafc;
-            padding: 16px 20px;
+            padding: 12px 12px;
             text-align: left;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 11px;
             color: #475569;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #e2e8f0;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #e2e8f0;
             cursor: pointer;
         }
 
-        th:hover {
-            background: #f1f5f9;
-        }
-
         td {
-            padding: 14px 20px;
+            padding: 10px 12px;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
+            font-size: 13px;
             color: #334155;
-        }
-
-        tr:hover {
-            background: #faf5ff;
         }
 
         .badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .badge-1 { background: #dbeafe; color: #1e40af; }
@@ -346,24 +336,22 @@
         .delete-btn {
             color: #ef4444;
             cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 4px 10px;
+            border-radius: 6px;
             display: inline-block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .delete-btn:hover {
-            background: #fee2e2;
+            white-space: nowrap;
         }
 
         .loading {
             text-align: center;
-            padding: 60px;
+            padding: 40px;
             color: #94a3b8;
+            font-size: 14px;
         }
 
+        /* Modal compacto */
         .modal {
             display: none;
             position: fixed;
@@ -375,7 +363,6 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            backdrop-filter: blur(4px);
         }
 
         .modal.show {
@@ -384,39 +371,52 @@
 
         .modal-content {
             background: white;
-            padding: 32px;
-            border-radius: 24px;
+            padding: 24px;
+            border-radius: 20px;
             text-align: center;
-            max-width: 400px;
-            width: 90%;
+            max-width: 85%;
+            width: 300px;
         }
 
         .modal-content h3 {
-            font-size: 20px;
-            margin-bottom: 12px;
+            font-size: 18px;
+            margin-bottom: 10px;
             color: #1e293b;
+        }
+
+        .modal-content p {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 20px;
         }
 
         .modal-buttons {
             display: flex;
             gap: 12px;
             justify-content: center;
-            margin-top: 24px;
+        }
+
+        .modal-buttons .btn {
+            padding: 8px 16px;
+            font-size: 13px;
         }
 
         .toast {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
             background: #1e293b;
             color: white;
-            padding: 14px 24px;
-            border-radius: 16px;
-            font-size: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
             font-weight: 500;
             animation: slideIn 0.3s ease;
             z-index: 1000;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin: 0 auto;
+            max-width: 90%;
         }
 
         .toast.error { background: #ef4444; }
@@ -424,78 +424,154 @@
 
         @keyframes slideIn {
             from {
-                transform: translateX(100%);
+                transform: translateY(100%);
                 opacity: 0;
             }
             to {
-                transform: translateX(0);
+                transform: translateY(0);
                 opacity: 1;
             }
         }
 
-        @media (max-width: 768px) {
-            body { padding: 16px; }
-            .header-card { flex-direction: column; text-align: center; }
-            .stat-number { font-size: 32px; }
-            .export-buttons { justify-content: center; }
+        /* Ajustes para pantallas muy pequeñas */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 10px;
+            }
+            
+            .stat-number {
+                font-size: 22px;
+            }
+            
+            .stat-title {
+                font-size: 10px;
+            }
+            
+            .export-buttons .btn {
+                font-size: 10px;
+                padding: 6px 8px;
+                white-space: normal;
+                word-break: keep-all;
+            }
+            
+            .btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            
+            .control-panel {
+                padding: 12px;
+            }
+            
+            .filters-section {
+                padding: 12px;
+            }
+        }
+
+        /* Para tabletas */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .export-buttons .btn {
+                flex: 0 1 auto;
+            }
+        }
+
+        /* Para desktop */
+        @media (min-width: 1025px) {
+            body {
+                padding: 24px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+            
+            .container {
+                max-width: 1600px;
+            }
+            
+            .filters-grid {
+                flex-direction: row;
+                gap: 16px;
+            }
+            
+            .filters-grid .filter-group {
+                flex: 1;
+            }
+            
+            .filter-actions {
+                margin-top: 0;
+                align-items: flex-end;
+            }
+            
+            .filter-actions .btn {
+                flex: 0 1 auto;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header compacto -->
         <div class="header-card">
             <div class="header-title">
-                <h1>📋 Panel de Administración</h1>
-                <p>Gestión de alumnos | Límites: Comisión 1: 74 | Comisión 2: 77 | Comisión 3: 75</p>
+                <h1>📋 Panel Admin</h1>
+                <p>C1:74 | C2:77 | C3:75</p>
             </div>
             <div class="action-buttons">
-                <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo Alumno</button>
-                <button class="btn btn-outline" id="refreshBtn">🔄 Actualizar</button>
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ Nuevo</button>
+                <button class="btn btn-outline" id="refreshBtn">🔄</button>
             </div>
         </div>
 
+        <!-- Estadísticas en grid responsive -->
         <div class="stats-grid" id="statsGrid"></div>
 
+        <!-- Botones de exportación por comisión -->
         <div class="control-panel">
             <div class="panel-title">
-                📄 Exportar por Comisión
+                📄 Exportar PDF
             </div>
             <div class="export-buttons">
-                <button class="btn btn-comision1" id="exportComision1Btn">
-                    🪑 Comisión 1 - Exportar PDF (74 alumnos)
-                </button>
-                <button class="btn btn-comision2" id="exportComision2Btn">
-                    🪑 Comisión 2 - Exportar PDF (77 alumnos)
-                </button>
-                <button class="btn btn-comision3" id="exportComision3Btn">
-                    🪑 Comisión 3 - Exportar PDF (75 alumnos)
-                </button>
+                <button class="btn btn-comision1" id="exportComision1Btn">📄 Comisión 1</button>
+                <button class="btn btn-comision2" id="exportComision2Btn">📄 Comisión 2</button>
+                <button class="btn btn-comision3" id="exportComision3Btn">📄 Comisión 3</button>
             </div>
         </div>
 
+        <!-- Control de inscripciones -->
         <div class="control-panel">
-            <div class="panel-title">
-                ⚙️ Control de Inscripciones
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                 <div>
-                    <div style="margin-bottom: 8px; font-weight: 500; color: #334155;">Estado actual:</div>
-                    <div id="statusIndicator" class="status-indicator status-open">✅ Inscripciones abiertas</div>
+                    <div style="font-size: 11px; font-weight: 500; color: #64748b; margin-bottom: 4px;">Estado</div>
+                    <div id="statusIndicator" class="status-indicator status-open">✅ Abiertas</div>
                 </div>
-                <div>
-                    <button class="btn btn-danger" id="toggleInscripcionesBtn">🔒 Cancelar Inscripciones</button>
-                </div>
+                <button class="btn btn-danger" id="toggleInscripcionesBtn">🔒 Cancelar</button>
             </div>
         </div>
 
+        <!-- Filtros compactos -->
         <div class="filters-section">
             <div class="filters-grid">
                 <div class="filter-group">
-                    <label>🔍 Buscar por nombre o apellido</label>
-                    <input type="text" id="searchInput" placeholder="Escriba para buscar...">
+                    <label>🔍 Buscar</label>
+                    <input type="text" id="searchInput" placeholder="Nombre o apellido">
                 </div>
                 <div class="filter-group">
-                    <label>📌 Filtrar por comisión</label>
+                    <label>📌 Comisión</label>
                     <select id="comisionFilter">
                         <option value="">Todas</option>
                         <option value="Comisión 1">Comisión 1</option>
@@ -504,19 +580,20 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>🔢 Buscar por DNI</label>
+                    <label>🔢 DNI</label>
                     <input type="text" id="dniFilter" placeholder="DNI">
                 </div>
             </div>
-            <div style="margin-top: 20px; display: flex; gap: 12px;">
-                <button class="btn btn-primary" id="applyFiltersBtn">Aplicar Filtros</button>
-                <button class="btn" id="clearFiltersBtn" style="background: #e2e8f0; color: #475569;">Limpiar</button>
+            <div class="filter-actions">
+                <button class="btn btn-primary" id="applyFiltersBtn">Aplicar</button>
+                <button class="btn" id="clearFiltersBtn" style="background: #e2e8f0;">Limpiar</button>
             </div>
         </div>
 
+        <!-- Tabla con scroll horizontal -->
         <div class="table-container">
             <div id="loadingState" class="loading">
-                <div>Cargando alumnos...</div>
+                <div>Cargando...</div>
             </div>
             <div id="tableContent" style="display: none;">
                 <table id="alumnosTable">
@@ -526,7 +603,7 @@
                             <th onclick="sortTable('apellido')">Apellido ⬍</th>
                             <th onclick="sortTable('dni')">DNI ⬍</th>
                             <th onclick="sortTable('comision')">Comisión ⬍</th>
-                            <th onclick="sortTable('fecha_registro')">Fecha Registro ⬍</th>
+                            <th onclick="sortTable('fecha_registro')">Fecha ⬍</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -538,8 +615,8 @@
 
     <div id="deleteModal" class="modal">
         <div class="modal-content">
-            <h3>⚠️ Confirmar eliminación</h3>
-            <p id="deleteMessage">¿Está seguro?</p>
+            <h3>⚠️ Confirmar</h3>
+            <p id="deleteMessage">¿Eliminar este alumno?</p>
             <div class="modal-buttons">
                 <button class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
                 <button class="btn" id="cancelDeleteBtn" style="background: #e2e8f0;">Cancelar</button>
@@ -549,8 +626,8 @@
 
     <div id="toggleModal" class="modal">
         <div class="modal-content">
-            <h3 id="toggleModalTitle">⚠️ Confirmar acción</h3>
-            <p id="toggleModalMessage">¿Está seguro de que desea cancelar las inscripciones?</p>
+            <h3 id="toggleModalTitle">⚠️ Confirmar</h3>
+            <p id="toggleModalMessage">¿Cancelar inscripciones?</p>
             <div class="modal-buttons">
                 <button class="btn btn-danger" id="confirmToggleBtn">Confirmar</button>
                 <button class="btn" id="cancelToggleBtn" style="background: #e2e8f0;">Cancelar</button>
@@ -591,13 +668,13 @@
             function formatDate(dateString) {
                 if (!dateString) return 'N/A';
                 const date = new Date(dateString);
-                return date.toLocaleDateString('es-AR') + ' ' + date.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'});
+                return date.toLocaleDateString('es-AR');
             }
             
             function getBadge(comision) {
-                if (comision === 'Comisión 1') return '<span class="badge badge-1">Comisión 1</span>';
-                if (comision === 'Comisión 2') return '<span class="badge badge-2">Comisión 2</span>';
-                return '<span class="badge badge-3">Comisión 3</span>';
+                if (comision === 'Comisión 1') return '<span class="badge badge-1">C1</span>';
+                if (comision === 'Comisión 2') return '<span class="badge badge-2">C2</span>';
+                return '<span class="badge badge-3">C3</span>';
             }
             
             function escapeHtml(text) {
@@ -616,7 +693,6 @@
                         .single();
                     
                     if (error) throw error;
-                    
                     inscripcionesAbiertas = data ? data.inscripciones_abiertas : true;
                     actualizarUIEstado();
                 } catch (error) {
@@ -630,20 +706,19 @@
                 
                 if (inscripcionesAbiertas) {
                     statusIndicator.className = 'status-indicator status-open';
-                    statusIndicator.innerHTML = '✅ Inscripciones abiertas';
-                    toggleBtn.innerHTML = '🔒 Cancelar Inscripciones';
+                    statusIndicator.innerHTML = '✅ Abiertas';
+                    toggleBtn.innerHTML = '🔒 Cancelar';
                     toggleBtn.className = 'btn btn-danger';
                 } else {
                     statusIndicator.className = 'status-indicator status-closed';
-                    statusIndicator.innerHTML = '🔴 Inscripciones cerradas';
-                    toggleBtn.innerHTML = '🔓 Reabrir Inscripciones';
+                    statusIndicator.innerHTML = '🔴 Cerradas';
+                    toggleBtn.innerHTML = '🔓 Reabrir';
                     toggleBtn.className = 'btn btn-success';
                 }
             }
             
             async function toggleInscripciones() {
                 const nuevaEstado = !inscripcionesAbiertas;
-                
                 try {
                     const { error } = await supabaseClient
                         .from('configuracion')
@@ -651,89 +726,63 @@
                         .eq('id', 1);
                     
                     if (error) throw error;
-                    
                     inscripcionesAbiertas = nuevaEstado;
                     actualizarUIEstado();
-                    showToast(nuevaEstado ? '✅ Inscripciones reabiertas exitosamente' : '🔒 Inscripciones canceladas exitosamente');
+                    showToast(nuevaEstado ? '✅ Inscripciones reabiertas' : '🔒 Inscripciones canceladas');
                 } catch (error) {
-                    console.error('Error al cambiar estado:', error);
-                    showToast('Error al cambiar el estado de inscripciones', true);
+                    showToast('Error al cambiar estado', true);
                 }
             }
             
             function updateStats() {
                 const statsGrid = document.getElementById('statsGrid');
-                
-                const comision1Total = allAlumnos.filter(a => a.comision === 'Comisión 1').length;
-                const comision2Total = allAlumnos.filter(a => a.comision === 'Comisión 2').length;
-                const comision3Total = allAlumnos.filter(a => a.comision === 'Comisión 3').length;
+                const c1Total = allAlumnos.filter(a => a.comision === 'Comisión 1').length;
+                const c2Total = allAlumnos.filter(a => a.comision === 'Comisión 2').length;
+                const c3Total = allAlumnos.filter(a => a.comision === 'Comisión 3').length;
                 
                 statsGrid.innerHTML = `
-                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 1')" style="cursor: pointer;">
-                        <div class="stat-header">
-                            <span class="stat-title">Comisión 1</span>
-                            <span class="stat-icon">🪑</span>
-                        </div>
-                        <div class="stat-number">${comision1Total}/${LIMITES_COMISION['Comisión 1']}</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill comision1" style="width: ${(comision1Total / LIMITES_COMISION['Comisión 1']) * 100}%"></div>
-                        </div>
-                        <div class="stat-footer">${LIMITES_COMISION['Comisión 1'] - comision1Total} cupos disponibles</div>
+                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 1')">
+                        <div class="stat-header"><span class="stat-title">C1</span><span class="stat-icon">🪑</span></div>
+                        <div class="stat-number">${c1Total}/${LIMITES_COMISION['Comisión 1']}</div>
+                        <div class="progress-bar"><div class="progress-fill comision1" style="width: ${(c1Total / LIMITES_COMISION['Comisión 1']) * 100}%"></div></div>
+                        <div class="stat-footer">${LIMITES_COMISION['Comisión 1'] - c1Total} disponibles</div>
                     </div>
-                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 2')" style="cursor: pointer;">
-                        <div class="stat-header">
-                            <span class="stat-title">Comisión 2</span>
-                            <span class="stat-icon">🪑</span>
-                        </div>
-                        <div class="stat-number">${comision2Total}/${LIMITES_COMISION['Comisión 2']}</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill comision2" style="width: ${(comision2Total / LIMITES_COMISION['Comisión 2']) * 100}%"></div>
-                        </div>
-                        <div class="stat-footer">${LIMITES_COMISION['Comisión 2'] - comision2Total} cupos disponibles</div>
+                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 2')">
+                        <div class="stat-header"><span class="stat-title">C2</span><span class="stat-icon">🪑</span></div>
+                        <div class="stat-number">${c2Total}/${LIMITES_COMISION['Comisión 2']}</div>
+                        <div class="progress-bar"><div class="progress-fill comision2" style="width: ${(c2Total / LIMITES_COMISION['Comisión 2']) * 100}%"></div></div>
+                        <div class="stat-footer">${LIMITES_COMISION['Comisión 2'] - c2Total} disponibles</div>
                     </div>
-                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 3')" style="cursor: pointer;">
-                        <div class="stat-header">
-                            <span class="stat-title">Comisión 3</span>
-                            <span class="stat-icon">🪑</span>
-                        </div>
-                        <div class="stat-number">${comision3Total}/${LIMITES_COMISION['Comisión 3']}</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill comision3" style="width: ${(comision3Total / LIMITES_COMISION['Comisión 3']) * 100}%"></div>
-                        </div>
-                        <div class="stat-footer">${LIMITES_COMISION['Comisión 3'] - comision3Total} cupos disponibles</div>
+                    <div class="stat-card" onclick="exportarComisionEspecifica('Comisión 3')">
+                        <div class="stat-header"><span class="stat-title">C3</span><span class="stat-icon">🪑</span></div>
+                        <div class="stat-number">${c3Total}/${LIMITES_COMISION['Comisión 3']}</div>
+                        <div class="progress-bar"><div class="progress-fill comision3" style="width: ${(c3Total / LIMITES_COMISION['Comisión 3']) * 100}%"></div></div>
+                        <div class="stat-footer">${LIMITES_COMISION['Comisión 3'] - c3Total} disponibles</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-title">Total General</span>
-                            <span class="stat-icon">📊</span>
-                        </div>
+                        <div class="stat-header"><span class="stat-title">Total</span><span class="stat-icon">📊</span></div>
                         <div class="stat-number">${allAlumnos.length}/${Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0)}</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(allAlumnos.length / Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0)) * 100}%; background: linear-gradient(90deg, #8b5cf6, #6d28d9);"></div>
-                        </div>
-                        <div class="stat-footer">${Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0) - allAlumnos.length} cupos totales disponibles</div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${(allAlumnos.length / Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0)) * 100}%; background: linear-gradient(90deg, #8b5cf6, #6d28d9);"></div></div>
+                        <div class="stat-footer">${Object.values(LIMITES_COMISION).reduce((a, b) => a + b, 0) - allAlumnos.length} disponibles</div>
                     </div>
                 `;
             }
             
-            // Función para exportar PDF de una comisión específica (TODOS los alumnos)
             function exportarComisionEspecifica(comision) {
                 const alumnosComision = allAlumnos.filter(a => a.comision === comision);
                 
                 if (alumnosComision.length === 0) {
-                    showToast(`No hay alumnos en ${comision} para exportar`, true);
+                    showToast(`No hay alumnos en ${comision}`, true);
                     return;
                 }
                 
                 showToast(`Generando PDF de ${comision} (${alumnosComision.length} alumnos)...`);
                 
                 const pdfContent = document.createElement('div');
-                pdfContent.style.padding = '40px 30px';
+                pdfContent.style.padding = '30px 20px';
                 pdfContent.style.fontFamily = 'Arial, sans-serif';
                 pdfContent.style.backgroundColor = 'white';
-                pdfContent.style.color = '#000000';
                 
-                // Ordenar alfabéticamente por apellido y luego por nombre
                 const alumnosOrdenados = [...alumnosComision].sort((a, b) => {
                     const apellidoCompare = a.apellido.localeCompare(b.apellido);
                     if (apellidoCompare !== 0) return apellidoCompare;
@@ -741,47 +790,39 @@
                 });
                 
                 const colores = {
-                    'Comisión 1': { principal: '#3b82f6', secundario: '#1e40af', nombre: 'Comisión 1' },
-                    'Comisión 2': { principal: '#10b981', secundario: '#047857', nombre: 'Comisión 2' },
-                    'Comisión 3': { principal: '#f59e0b', secundario: '#b45309', nombre: 'Comisión 3' }
+                    'Comisión 1': '#3b82f6',
+                    'Comisión 2': '#10b981',
+                    'Comisión 3': '#f59e0b'
                 };
-                
-                const color = colores[comision].principal;
+                const color = colores[comision];
                 const limite = LIMITES_COMISION[comision];
-                const totalAlumnos = alumnosOrdenados.length;
                 
-                // Crear tabla completa con manejo de saltos de página
                 let tablaHTML = `
-                    <div style="text-align: center; margin-bottom: 40px;">
-                        <h1 style="color: ${color}; font-size: 32px; margin-bottom: 10px;">📋 ${comision}</h1>
-                        <p style="color: #6b7280; font-size: 13px; margin-top: 5px;">
-                            Fecha de generación: ${new Date().toLocaleString('es-AR')}<br>
-                            Total de alumnos: ${totalAlumnos} | Límite: ${limite} alumnos
-                        </p>
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h1 style="color: ${color}; font-size: 24px; margin-bottom: 5px;">📋 ${comision}</h1>
+                        <p style="color: #6b7280; font-size: 11px;">${new Date().toLocaleString('es-AR')} | Total: ${alumnosOrdenados.length}/${limite}</p>
                     </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <table style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background-color: ${color}; color: white;">
-                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 8%;">N°</th>
-                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 30%;">Apellido</th>
-                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 30%;">Nombre</th>
-                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 20%;">DNI</th>
-                                <th style="padding: 14px; text-align: left; border: 1px solid #ddd; width: 12%;">Fecha</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 8%;">N°</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Apellido</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Nombre</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 20%;">DNI</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; width: 12%;">Fecha</th>
                             </tr>
                         </thead>
                         <tbody>
                 `;
                 
-                // Agregar todas las filas con estilos para evitar corte de nombres
                 alumnosOrdenados.forEach((alumno, index) => {
                     tablaHTML += `
                         <tr style="page-break-inside: avoid;">
-                            <td style="padding: 12px; border: 1px solid #ddd; vertical-align: top;">${index + 1}</td>
-                            <td style="padding: 12px; border: 1px solid #ddd; word-break: break-word; white-space: normal; vertical-align: top;">${escapeHtml(alumno.apellido)}</td>
-                            <td style="padding: 12px; border: 1px solid #ddd; word-break: break-word; white-space: normal; vertical-align: top;">${escapeHtml(alumno.nombre)}</td>
-                            <td style="padding: 12px; border: 1px solid #ddd; vertical-align: top;">${escapeHtml(alumno.dni)}</td>
-                            <td style="padding: 12px; border: 1px solid #ddd; vertical-align: top;">${formatDate(alumno.fecha_registro).split(',')[0]}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.apellido)}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.nombre)}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${formatDate(alumno.fecha_registro)}</td>
                         </tr>
                     `;
                 });
@@ -789,38 +830,26 @@
                 tablaHTML += `
                         </tbody>
                     </table>
-                    
-                    <div style="margin-top: 40px; text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 20px;">
-                        <p>Documento generado automáticamente - Sistema de Distribución de Alumnos</p>
-                        <p>${comision} - Total de alumnos: ${totalAlumnos} | Límite: ${limite}</p>
-                    </div>
+                    <div style="margin-top: 20px; text-align: center; font-size: 9px; color: #9ca3af;">Documento generado automáticamente</div>
                 `;
                 
                 pdfContent.innerHTML = tablaHTML;
                 
-                const opt = {
-                    margin: [0.5, 0.5, 0.5, 0.5],
-                    filename: `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
+                html2pdf().set({
+                    margin: 0.5,
+                    filename: `${comision.replace(' ', '_')}_alumnos.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, letterRendering: true, useCORS: true },
+                    html2canvas: { scale: 2 },
                     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-                
-                html2pdf().set(opt).from(pdfContent).save()
-                    .then(() => {
-                        showToast(`✅ PDF de ${comision} generado correctamente (${totalAlumnos} alumnos)`);
-                    })
-                    .catch((error) => {
-                        console.error('Error al generar PDF:', error);
-                        showToast(`Error al generar PDF de ${comision}`, true);
-                    });
+                }).from(pdfContent).save()
+                    .then(() => showToast(`✅ PDF de ${comision} generado`))
+                    .catch(() => showToast(`Error al generar PDF`, true));
             }
             
             function renderTable() {
                 const tbody = document.getElementById('tableBody');
-                
                 if (filteredAlumnos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:60px;">📭 No hay alumnos registrados</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">📭 No hay alumnos</td></tr>';
                     return;
                 }
                 
@@ -846,7 +875,7 @@
                         <td>${escapeHtml(alumno.dni)}</td>
                         <td>${getBadge(alumno.comision)}</td>
                         <td>${formatDate(alumno.fecha_registro)}</td>
-                        <td><span class="delete-btn" onclick="deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️ Eliminar</span></td>
+                        <td><span class="delete-btn" onclick="deleteAlumno('${alumno.id}', '${escapeHtml(alumno.nombre)} ${escapeHtml(alumno.apellido)}')">🗑️</span></td>
                     </tr>
                 `).join('');
             }
@@ -876,7 +905,7 @@
                     return true;
                 });
                 renderTable();
-                showToast(`Mostrando ${filteredAlumnos.length} de ${allAlumnos.length} alumnos`);
+                showToast(`Mostrando ${filteredAlumnos.length} de ${allAlumnos.length}`);
             }
             
             function clearFilters() {
@@ -899,7 +928,7 @@
                 try {
                     const { error } = await supabaseClient.from('alumnos').delete().eq('id', alumnoToDelete);
                     if (error) throw error;
-                    showToast('Alumno eliminado correctamente');
+                    showToast('Alumno eliminado');
                     await loadAlumnos();
                 } catch (error) {
                     showToast('Error al eliminar', true);
@@ -915,24 +944,21 @@
             async function loadAlumnos() {
                 const loadingState = document.getElementById('loadingState');
                 const tableContent = document.getElementById('tableContent');
-                
                 loadingState.style.display = 'block';
                 tableContent.style.display = 'none';
                 
                 try {
                     const { data, error } = await supabaseClient.from('alumnos').select('*').order('fecha_registro', { ascending: false });
                     if (error) throw error;
-                    
                     allAlumnos = data || [];
                     filteredAlumnos = [...allAlumnos];
                     updateStats();
                     renderTable();
-                    
                     loadingState.style.display = 'none';
                     tableContent.style.display = 'block';
                 } catch (error) {
-                    loadingState.innerHTML = '<div>❌ Error al cargar datos</div>';
-                    showToast('Error al cargar datos', true);
+                    loadingState.innerHTML = '<div>❌ Error</div>';
+                    showToast('Error al cargar', true);
                 }
             }
             
@@ -943,7 +969,6 @@
             document.getElementById('refreshBtn').addEventListener('click', loadAlumnos);
             document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
             document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
-            
             document.getElementById('exportComision1Btn').addEventListener('click', () => exportarComisionEspecifica('Comisión 1'));
             document.getElementById('exportComision2Btn').addEventListener('click', () => exportarComisionEspecifica('Comisión 2'));
             document.getElementById('exportComision3Btn').addEventListener('click', () => exportarComisionEspecifica('Comisión 3'));
@@ -954,15 +979,8 @@
             const cancelToggleBtn = document.getElementById('cancelToggleBtn');
             
             toggleBtn.addEventListener('click', () => {
-                const title = document.getElementById('toggleModalTitle');
-                const message = document.getElementById('toggleModalMessage');
-                if (inscripcionesAbiertas) {
-                    title.textContent = '🔒 Cancelar Inscripciones';
-                    message.textContent = '¿Está seguro de que desea cancelar las inscripciones? Los alumnos no podrán registrarse hasta que se reabran.';
-                } else {
-                    title.textContent = '🔓 Reabrir Inscripciones';
-                    message.textContent = '¿Está seguro de que desea reabrir las inscripciones? Los alumnos podrán registrarse nuevamente.';
-                }
+                document.getElementById('toggleModalTitle').textContent = inscripcionesAbiertas ? '🔒 Cancelar' : '🔓 Reabrir';
+                document.getElementById('toggleModalMessage').textContent = inscripcionesAbiertas ? '¿Cancelar inscripciones?' : '¿Reabrir inscripciones?';
                 toggleModal.classList.add('show');
             });
             
@@ -970,7 +988,6 @@
                 await toggleInscripciones();
                 toggleModal.classList.remove('show');
             });
-            
             cancelToggleBtn.addEventListener('click', () => toggleModal.classList.remove('show'));
             
             loadAlumnos();
