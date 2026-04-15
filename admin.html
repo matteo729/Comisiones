@@ -479,12 +479,12 @@
 
         <div class="control-panel">
             <div class="panel-title">
-                📄 Exportar PDF
+                📄 Exportar a Word (Editable)
             </div>
             <div class="export-buttons">
-                <button class="btn btn-comision1" id="exportComision1Btn">📄 Comisión 1</button>
-                <button class="btn btn-comision2" id="exportComision2Btn">📄 Comisión 2</button>
-                <button class="btn btn-comision3" id="exportComision3Btn">📄 Comisión 3</button>
+                <button class="btn btn-comision1" id="exportComision1Btn">📝 Comisión 1 a Word</button>
+                <button class="btn btn-comision2" id="exportComision2Btn">📝 Comisión 2 a Word</button>
+                <button class="btn btn-comision3" id="exportComision3Btn">📝 Comisión 3 a Word</button>
             </div>
         </div>
 
@@ -568,7 +568,6 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
@@ -701,7 +700,7 @@
                 `;
             }
             
-            // FUNCIÓN OPTIMIZADA PARA EXPORTAR PDF CON TODOS LOS ALUMNOS
+            // NUEVA FUNCIÓN: Exportar a WORD (formato .doc editable)
             function exportarComisionEspecifica(comision) {
                 const alumnosComision = allAlumnos.filter(a => a.comision === comision);
                 
@@ -710,12 +709,7 @@
                     return;
                 }
                 
-                showToast(`Generando PDF de ${comision} (${alumnosComision.length} alumnos)...`);
-                
-                const pdfContent = document.createElement('div');
-                pdfContent.style.padding = '20px';
-                pdfContent.style.fontFamily = 'Arial, sans-serif';
-                pdfContent.style.backgroundColor = 'white';
+                showToast(`Generando documento Word de ${comision} (${alumnosComision.length} alumnos)...`);
                 
                 const alumnosOrdenados = [...alumnosComision].sort((a, b) => {
                     const apellidoCompare = a.apellido.localeCompare(b.apellido);
@@ -732,67 +726,120 @@
                 const limite = LIMITES_COMISION[comision];
                 const total = alumnosOrdenados.length;
                 
+                // Construir el HTML para Word (compatible con .doc)
                 let tablaHTML = `
-                    <div style="text-align: center; margin-bottom: 25px;">
-                        <h1 style="color: ${color}; font-size: 24px; margin-bottom: 5px;">📋 ${comision}</h1>
-                        <p style="color: #6b7280; font-size: 11px;">
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>${comision} - Listado de Alumnos</title>
+                        <style>
+                            body {
+                                font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+                                margin: 40px;
+                                font-size: 12pt;
+                            }
+                            h1 {
+                                color: ${color};
+                                font-size: 24pt;
+                                margin-bottom: 5px;
+                                text-align: center;
+                            }
+                            .subtitle {
+                                text-align: center;
+                                color: #6b7280;
+                                font-size: 10pt;
+                                margin-bottom: 25px;
+                                border-bottom: 1px solid #e5e7eb;
+                                padding-bottom: 10px;
+                            }
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 20px;
+                            }
+                            th {
+                                background-color: ${color};
+                                color: white;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                font-size: 12pt;
+                                text-align: left;
+                            }
+                            td {
+                                padding: 8px;
+                                border: 1px solid #ddd;
+                                font-size: 11pt;
+                            }
+                            .footer {
+                                margin-top: 30px;
+                                text-align: center;
+                                font-size: 9pt;
+                                color: #9ca3af;
+                                border-top: 1px solid #e5e7eb;
+                                padding-top: 15px;
+                            }
+                            .numero {
+                                text-align: center;
+                                width: 8%;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>📋 ${comision}</h1>
+                        <div class="subtitle">
                             Fecha: ${new Date().toLocaleString('es-AR')} | Total: ${total}/${limite} alumnos
-                        </p>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                        <thead>
-                            <tr style="background-color: ${color}; color: white;">
-                                <th style="padding: 10px; border: 1px solid #ddd; width: 8%;">N°</th>
-                                <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Apellido</th>
-                                <th style="padding: 10px; border: 1px solid #ddd; width: 30%;">Nombre</th>
-                                <th style="padding: 10px; border: 1px solid #ddd; width: 20%;">DNI</th>
-                                <th style="padding: 10px; border: 1px solid #ddd; width: 12%;">Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="numero">N°</th>
+                                    <th>Apellido</th>
+                                    <th>Nombre</th>
+                                    <th>DNI</th>
+                                    <th>Fecha Registro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                 `;
                 
                 for (let i = 0; i < alumnosOrdenados.length; i++) {
                     const alumno = alumnosOrdenados[i];
                     tablaHTML += `
-                        <tr style="page-break-inside: avoid;">
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${i + 1}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.apellido)}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; word-break: break-word;">${escapeHtml(alumno.nombre)}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(alumno.dni)}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">${formatDate(alumno.fecha_registro)}</td>
+                        <tr>
+                            <td style="text-align: center;">${i + 1}</td>
+                            <td>${escapeHtml(alumno.apellido)}</td>
+                            <td>${escapeHtml(alumno.nombre)}</td>
+                            <td>${escapeHtml(alumno.dni)}</td>
+                            <td>${formatDate(alumno.fecha_registro)}</td>
                         </tr>
                     `;
                 }
                 
                 tablaHTML += `
-                        </tbody>
-                    </table>
-                    
-                    <div style="margin-top: 20px; text-align: center; font-size: 9px; color: #9ca3af; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-                        Documento generado automáticamente - Sistema de Distribución de Alumnos
-                    </div>
+                            </tbody>
+                        </table>
+                        
+                        <div class="footer">
+                            Documento generado automáticamente - Sistema de Distribución de Alumnos<br>
+                            Este documento es EDITABLE - Puede modificar el contenido directamente en Word
+                        </div>
+                    </body>
+                    </html>
                 `;
                 
-                pdfContent.innerHTML = tablaHTML;
+                // Crear blob con tipo application/msword
+                const blob = new Blob([tablaHTML], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.doc`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
                 
-                const opt = {
-                    margin: [0.4, 0.4, 0.4, 0.4],
-                    filename: `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, letterRendering: true },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-                
-                html2pdf().set(opt).from(pdfContent).save()
-                    .then(() => {
-                        showToast(`✅ PDF de ${comision} generado (${total} alumnos)`);
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                        showToast(`Error al generar PDF`, true);
-                    });
+                showToast(`✅ Documento Word de ${comision} generado (${total} alumnos) - Totalmente editable`);
             }
             
             function renderTable() {
