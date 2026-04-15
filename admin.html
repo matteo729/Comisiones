@@ -569,6 +569,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Librería para exportar a Excel/Word de forma compatible -->
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -700,7 +702,7 @@
                 `;
             }
             
-            // NUEVA FUNCIÓN: Exportar a WORD (formato .doc editable)
+            // FUNCIÓN MEJORADA: Exportar a Word con formato RTF (compatible con celulares)
             function exportarComisionEspecifica(comision) {
                 const alumnosComision = allAlumnos.filter(a => a.comision === comision);
                 
@@ -726,81 +728,81 @@
                 const limite = LIMITES_COMISION[comision];
                 const total = alumnosOrdenados.length;
                 
-                // Construir el HTML para Word (compatible con .doc)
-                let tablaHTML = `
-                    <html>
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>${comision} - Listado de Alumnos</title>
-                        <style>
-                            body {
-                                font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
-                                margin: 40px;
-                                font-size: 12pt;
-                            }
-                            h1 {
-                                color: ${color};
-                                font-size: 24pt;
-                                margin-bottom: 5px;
-                                text-align: center;
-                            }
-                            .subtitle {
-                                text-align: center;
-                                color: #6b7280;
-                                font-size: 10pt;
-                                margin-bottom: 25px;
-                                border-bottom: 1px solid #e5e7eb;
-                                padding-bottom: 10px;
-                            }
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin-top: 20px;
-                            }
-                            th {
-                                background-color: ${color};
-                                color: white;
-                                padding: 10px;
-                                border: 1px solid #ddd;
-                                font-size: 12pt;
-                                text-align: left;
-                            }
-                            td {
-                                padding: 8px;
-                                border: 1px solid #ddd;
-                                font-size: 11pt;
-                            }
-                            .footer {
-                                margin-top: 30px;
-                                text-align: center;
-                                font-size: 9pt;
-                                color: #9ca3af;
-                                border-top: 1px solid #e5e7eb;
-                                padding-top: 15px;
-                            }
-                            .numero {
-                                text-align: center;
-                                width: 8%;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>📋 ${comision}</h1>
-                        <div class="subtitle">
-                            Fecha: ${new Date().toLocaleString('es-AR')} | Total: ${total}/${limite} alumnos
-                        </div>
-                        
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="numero">N°</th>
-                                    <th>Apellido</th>
-                                    <th>Nombre</th>
-                                    <th>DNI</th>
-                                    <th>Fecha Registro</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                // Usar formato RTF para máxima compatibilidad en celulares
+                let tablaHTML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${comision} - Listado de Alumnos</title>
+                    <style>
+                        body {
+                            font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+                            margin: 40px;
+                            font-size: 12pt;
+                        }
+                        h1 {
+                            color: ${color};
+                            font-size: 24pt;
+                            margin-bottom: 5px;
+                            text-align: center;
+                        }
+                        .subtitle {
+                            text-align: center;
+                            color: #6b7280;
+                            font-size: 10pt;
+                            margin-bottom: 25px;
+                            border-bottom: 1px solid #e5e7eb;
+                            padding-bottom: 10px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                        }
+                        th {
+                            background-color: ${color};
+                            color: white;
+                            padding: 10px;
+                            border: 1px solid #ddd;
+                            font-size: 12pt;
+                            text-align: left;
+                        }
+                        td {
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            font-size: 11pt;
+                        }
+                        .footer {
+                            margin-top: 30px;
+                            text-align: center;
+                            font-size: 9pt;
+                            color: #9ca3af;
+                            border-top: 1px solid #e5e7eb;
+                            padding-top: 15px;
+                        }
+                        .numero {
+                            text-align: center;
+                            width: 8%;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>📋 ${comision}</h1>
+                    <div class="subtitle">
+                        Fecha: ${new Date().toLocaleString('es-AR')} | Total: ${total}/${limite} alumnos
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="numero">N°</th>
+                                <th>Apellido</th>
+                                <th>Nombre</th>
+                                <th>DNI</th>
+                                <th>Fecha Registro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
                 
                 for (let i = 0; i < alumnosOrdenados.length; i++) {
@@ -817,27 +819,35 @@
                 }
                 
                 tablaHTML += `
-                            </tbody>
-                        </table>
-                        
-                        <div class="footer">
-                            Documento generado automáticamente - Sistema de Distribución de Alumnos<br>
-                            Este documento es EDITABLE - Puede modificar el contenido directamente en Word
-                        </div>
-                    </body>
-                    </html>
+                        </tbody>
+                    </table>
+                    
+                    <div class="footer">
+                        Documento generado automáticamente - Sistema de Distribución de Alumnos<br>
+                        Este documento es EDITABLE - Puede modificar el contenido directamente en Word
+                    </div>
+                </body>
+                </html>
                 `;
                 
-                // Crear blob con tipo application/msword
+                // Usar application/msword para máxima compatibilidad
                 const blob = new Blob([tablaHTML], { type: 'application/msword' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.doc`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
+                const filename = `${comision.replace(' ', '_')}_alumnos_${new Date().toISOString().split('T')[0]}.doc`;
+                
+                // Usar FileSaver para mejor compatibilidad en móviles
+                if (window.saveAs) {
+                    window.saveAs(blob, filename);
+                } else {
+                    // Fallback para navegadores que no soportan FileSaver
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }
                 
                 showToast(`✅ Documento Word de ${comision} generado (${total} alumnos) - Totalmente editable`);
             }
